@@ -308,3 +308,123 @@
     sync();
   })();
 
+
+  (function(){
+    // Design system page: the playground restyles the kit demo in its frame, live.
+    var page = document.getElementById('view-system');
+    if (!page) return;
+    var frame = page.querySelector('.sys-frame');
+    var codeTheme = document.getElementById('code-theme');
+    var round = document.getElementById('ctl-round'), glass = document.getElementById('ctl-glass');
+    var picker = page.querySelector('.sys-pick input');
+    var DEFAULTS = {accent: '#635BFF', deep: '#4B44D6', partner: '#EB5D76', surface: 'light', round: 100, glass: 20};
+    var s = {};
+    Object.keys(DEFAULTS).forEach(function(k){ s[k] = DEFAULTS[k]; });
+
+    // A deeper shade for hovers: the accent mixed with 22% ink, as violet is to violet-deep.
+    function deepen(hex){
+      var n = parseInt(hex.slice(1), 16), ink = [10, 37, 64];
+      return '#' + [n >> 16, (n >> 8) & 255, n & 255].map(function(v, i){
+        return ('0' + Math.round(v * 0.78 + ink[i] * 0.22).toString(16)).slice(-2);
+      }).join('').toUpperCase();
+    }
+
+    function vars(){
+      return [['--accent', s.accent], ['--accent-deep', s.deep], ['--accent-2', s.partner], ['--round', String(s.round / 100)], ['--glass-blur', s.glass + 'px']];
+    }
+
+    function apply(){
+      var doc = frame.contentDocument, root = doc && doc.documentElement;
+      if (root && root.classList.contains('is-framed')){
+        vars().forEach(function(v){ root.style.setProperty(v[0], v[1]); });
+        if (s.surface === 'dark') root.setAttribute('data-surface', 'dark'); else root.removeAttribute('data-surface');
+      }
+      var lines = s.surface === 'dark' ? ['<!-- Also add data-surface="dark" to the <html> tag -->'] : [];
+      lines.push('<style>', '  :root{');
+      vars().forEach(function(v){ lines.push('    ' + v[0] + ':' + v[1] + ';'); });
+      lines.push('  }', '</style>');
+      codeTheme.textContent = lines.join('\n');
+      round.previousElementSibling.querySelector('output').textContent = s.round + '%';
+      glass.previousElementSibling.querySelector('output').textContent = s.glass + 'px';
+    }
+
+    function press(group, value){
+      var hit = false;
+      group.querySelectorAll('button').forEach(function(b){
+        var on = b.getAttribute('data-value').toUpperCase() === value.toUpperCase();
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        if (on) hit = true;
+      });
+      return hit;
+    }
+
+    page.querySelectorAll('.sys-dots').forEach(function(group){
+      group.addEventListener('click', function(e){
+        var b = e.target.closest('button');
+        if (!b) return;
+        var v = b.getAttribute('data-value');
+        press(group, v);
+        if (group.getAttribute('data-set') === 'accent'){
+          s.accent = v; s.deep = b.getAttribute('data-deep') || deepen(v);
+          picker.parentNode.classList.remove('is-on');
+        } else s.partner = v;
+        apply();
+      });
+    });
+    picker.addEventListener('input', function(){
+      s.accent = picker.value.toUpperCase(); s.deep = deepen(s.accent);
+      press(picker.closest('.sys-dots'), '');
+      picker.parentNode.classList.add('is-on');
+      apply();
+    });
+    page.querySelectorAll('.seg').forEach(function(seg){
+      seg.addEventListener('click', function(e){
+        var b = e.target.closest('button');
+        if (!b) return;
+        seg.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        if (seg.classList.contains('sys-surface')){ s.surface = b.getAttribute('data-value'); apply(); }
+      });
+    });
+    round.addEventListener('input', function(){ s.round = +round.value; apply(); });
+    glass.addEventListener('input', function(){ s.glass = +glass.value; apply(); });
+    page.querySelector('.sys-reset').addEventListener('click', function(){
+      Object.keys(DEFAULTS).forEach(function(k){ s[k] = DEFAULTS[k]; });
+      page.querySelectorAll('.sys-dots').forEach(function(g){ press(g, g.getAttribute('data-set') === 'accent' ? s.accent : s.partner); });
+      press(page.querySelector('.sys-surface'), s.surface);
+      picker.value = s.accent; picker.parentNode.classList.remove('is-on');
+      round.value = s.round; glass.value = s.glass;
+      apply();
+      window.dispatchEvent(new Event('viewchange'));
+    });
+
+    // Copy buttons for the code snippets.
+    page.querySelectorAll('[data-copy]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var text = document.getElementById(btn.getAttribute('data-copy')).textContent;
+        function done(){ btn.textContent = 'Copied'; setTimeout(function(){ btn.textContent = 'Copy'; }, 1600); }
+        function fallback(){
+          var t = document.createElement('textarea');
+          t.value = text; t.style.position = 'fixed'; t.style.opacity = '0';
+          document.body.appendChild(t); t.select();
+          try { document.execCommand('copy'); done(); } catch (err) {}
+          t.remove();
+        }
+        if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+      });
+    });
+
+    // Size the frame to the demo, so the page scrolls instead of the frame.
+    function fit(){
+      var doc = frame.contentDocument, main = doc && doc.querySelector('main');
+      if (main) frame.style.height = Math.ceil(main.getBoundingClientRect().height) + 2 + 'px';
+    }
+    function ready(){
+      var doc = frame.contentDocument;
+      if (!doc || !doc.querySelector('main') || frame.getAttribute('data-ready')) return;
+      frame.setAttribute('data-ready', '');
+      apply(); fit();
+      if (window.ResizeObserver) new ResizeObserver(fit).observe(doc.querySelector('main'));
+    }
+    frame.addEventListener('load', ready);
+    if (frame.contentDocument && frame.contentDocument.readyState === 'complete') ready();
+  })();
