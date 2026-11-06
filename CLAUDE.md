@@ -32,7 +32,7 @@ One conversation, one change, one branch, one pull request.
 2. **Draft and preview** with `/edit` or `/new-post`: wording table plus mobile and desktop screenshots in the conversation.
 3. **Open the review page.** Commit with a plain-English message, push the branch, write the body to a file in the scratchpad, then `gh api repos/gianlucacaico/gianlucacaico.github.io/pulls -f title="<plain-English title>" -f head=<branch> -f base=main -F body=@<body file>`. The `gh pr ...` commands are blocked in these sessions (GitHub GraphQL is not available), so always use `gh api` (GitHub's REST API) for pull requests. The body says, in plain English: what changes, the Current / Proposed wording table, which pages to look at, and "Nothing is live until this is merged." Screenshots stay in the conversation, because GitHub's API cannot attach images. Revisions are pushed to the same branch.
 4. **Approve and merge.** After Gianluca approves, `/publish` squash-merges the pull request (one commit per change on `main`), waits for the deploy and verifies the live site. If he taps Merge himself in the GitHub app, still verify live (`/health` plus a live preview).
-5. **One change at a time.** Every view still lives in `index.html`, so parallel pull requests that both edit it can conflict. If another pull request is open, finish it first or rebase onto `main` after it merges, then re-preview.
+5. **One change at a time is safest.** Posts are separate files, so a new post and an unrelated edit rarely clash, but two pull requests editing the same page or template can. If another pull request is open on the same file, finish it first or rebase onto `main` after it merges, then re-preview.
 
 ## Hosting and deploy facts
 
@@ -40,7 +40,10 @@ One conversation, one change, one branch, one pull request.
 - Live at https://gianlucacaico.com, HTTPS enforced. `www` redirects to the main domain.
 - GitHub Pages deploys automatically from `main` via the default "pages build and deployment" workflow (Jekyll on). A push is live in about a minute. Check progress with `gh run list -R gianlucacaico/gianlucacaico.github.io -L 3`.
 - Pages serves with `cache-control: max-age=600`, so add a query string such as `?v=<timestamp>` when checking a fresh deploy.
-- The site is built by Jekyll: `index.html` (front matter `layout: default`) is wrapped in `_layouts/default.html`, which pulls in `_includes/head.html`, `nav.html` and `footer.html`. Never write `{{` or `{%` in copy, because Jekyll treats them as template code. Folders starting with `_` (`_layouts`, `_includes`) are never published as-is.
+- The site is built by Jekyll (GitHub Pages' standard plugins, production mode). Every page uses `_layouts/default.html`, which pulls in `_includes/head.html`, `nav.html` and `footer.html`; posts use `_layouts/post.html` on top. Never write `{{` or `{%` in copy, because Jekyll treats them as template code. Folders starting with `_` (`_layouts`, `_includes`, `_posts`) are never published as-is.
+- Addresses: `/` home, `/work`, `/blog/` (note the closing slash: `blog/` is also the folder holding the posts), `/blog/<slug>` for each post, `/sitemap.xml`, `/robots.txt` (both made by the jekyll-sitemap plugin) and `404.html` for missing pages. Old `#/...` addresses are redirected by a one-line script at the top of `_includes/head.html`.
+- A post dated in the future is not published until the site is next built after that date (a build happens on every merge to `main`).
+- GitHub Pages also publishes `assets/css/style.css` from its default theme. Nothing uses it; leave it.
 - Jekyll turns loose `.md` files into public pages, so every new non-site file must be added to `exclude:` in `_config.yml` (dot-folders such as `.claude/` are already excluded).
 - Domain registered at Squarespace, which hosts DNS. Email on Google Workspace. Hands off.
 - Cloud sessions should use the **gianlucacaico.github.io** environment, which allows `gianlucacaico.com` and `www.gianlucacaico.com`. The Default environment blocks them, so live checks would fail there.
@@ -49,19 +52,25 @@ One conversation, one change, one branch, one pull request.
 
 | Path | What it is | Published? |
 |---|---|---|
-| `index.html` | All the views: home, work, blog and every post (~93KB) | Yes (built) |
-| `_layouts/default.html` | The page shell: wraps every page with the head, nav, footer and script | Used in build |
-| `_includes/head.html` | Title, meta description, canonical, Open Graph and Twitter link preview tags, fonts, stylesheet link | Used in build |
-| `_includes/nav.html` | Desktop floating nav and mobile tab bar | Used in build |
-| `_includes/footer.html` | Contact footer shared by every view | Used in build |
+| `index.html` | Home page: all the homepage sections; "Latest thinking" fills itself from `_posts` | Yes, at `/` |
+| `work.html` | Work page | Yes, at `/work` |
+| `blog.html` | Blog page: featured post, recent posts and archive, all filled in from `_posts` | Yes, at `/blog/` |
+| `_posts/YYYY-MM-DD-<slug>.md` | One file per blog post: details at the top, the text below | Yes, at `/blog/<slug>` |
+| `404.html` | "Page not found" page | Shown for missing addresses |
+| `_layouts/default.html` | Page shell: head, nav, page content, footer, script | Used in build |
+| `_layouts/post.html` | Post page: header, byline, body, author bio, next-post card | Used in build |
+| `_includes/head.html` | Title, meta description, canonical, Open Graph and Twitter link preview tags (filled per page), old-address redirect, fonts, stylesheet | Used in build |
+| `_includes/nav.html` | Desktop floating nav and mobile tab bar; highlights the current section from the page's `nav:` setting | Used in build |
+| `_includes/footer.html` | Contact footer shared by every page | Used in build |
+| `_includes/post-row.html` | One row in a post list (homepage and blog page) | Used in build |
 | `assets/css/site.css` | All styles and design tokens | Yes |
-| `assets/js/site.js` | All interactions and the router | Yes |
-| `CNAME` | `gianlucacaico.com`. Never touch | Used by Pages |
-| `assets/og-image.jpg` | 1200x630 link preview image | Yes |
+| `assets/js/site.js` | All interactions (filters, model, tabs, orbit, glass lens, nav) | Yes |
 | `assets/img/` | Site photos as webp: `avatar`, `portrait`, `facilitating`, `personal` | Yes |
-| `_config.yml` | Tells Pages what not to publish | No |
+| `assets/og-image.jpg` | 1200x630 link preview image, used by every page | Yes |
+| `CNAME` | `gianlucacaico.com`. Never touch | Used by Pages |
+| `_config.yml` | Site settings: address, timezone, default link preview description, post addresses, sitemap, quote handling, files not to publish | No |
 | `CLAUDE.md` | This manual | No (excluded) |
-| `tools/` | Preview and health-check scripts | No (excluded) |
+| `tools/` | Build, preview, comparison and health-check scripts | No (excluded) |
 | `.claude/skills/` | Project slash commands | No (dot-folder) |
 
 ## Tools
@@ -69,11 +78,11 @@ One conversation, one change, one branch, one pull request.
 Run from the repo root. The tools build the site with GitHub Pages' own Jekyll first (`bash tools/build.sh`, output in `tools/_site/`), so previews show exactly what GitHub will publish. In a fresh session the first build installs the builder and a local copy of the Inter font (a minute or two) unless the environment's setup script already has.
 
 - `node tools/preview.js [view...] [--section ID] [--full] [--only mobile|desktop] [--live]`
-  Screenshots at 390px (mobile) and 1280px (desktop), saved to `tools/previews/` (git-ignored). Views: `home`, `work`, `blog`, `blog/<slug>`, or `all`. `--section` takes a section id (`writing`, `record`, `timeline`...) or any CSS selector. `--live` shoots the live site. Inter is served from a local copy so the font always renders; the tool warns if it does not, or if the expected view is not showing. Motion is reduced so screenshots are stable.
+  Screenshots at 390px (mobile) and 1280px (desktop), saved to `tools/previews/` (git-ignored). Views: `home`, `work`, `blog`, `blog/<slug>`, or `all` (found automatically from `_posts`). `--section` takes a section id (`writing`, `record`, `timeline`...) or any CSS selector. `--live` shoots the live site. Inter is served from a local copy so the font always renders; the tool warns if it does not, or if the expected view is not showing. Motion is reduced so screenshots are stable.
   The mobile tab bar is fixed to the bottom of the screen, so it appears over section screenshots, as it would on a phone.
-- `bash tools/health.sh`: checks the live site (domain, www, http to https, link preview tags and image, project files not public, every published file matches `main` as built by Jekyll, CNAME intact, no em dashes, every view renders with images and no script errors).
-- `node tools/check-views.js [url | local]`: the view check on its own. `local` builds and checks the working copy.
-- `bash tools/build.sh [source] [destination]`: build the site exactly as GitHub Pages does (Jekyll 3.10 via the `github-pages` gem in `tools/Gemfile`, installed to `tools/vendor/`).
+- `bash tools/health.sh`: checks the live site (domain, www, http to https, link preview tags and image, project files not public, every published file matches `main` as built by Jekyll, CNAME intact, no em dashes, sitemap, then the full page check below).
+- `node tools/check-views.js [url | local]`: follows every internal link from the homepage and checks each page (right view, images, no script errors, no em dashes, link preview tags pointing at the page's own address), every in-page link target, every old `#/` redirect and the 404 page. `local` builds and checks the working copy.
+- `bash tools/build.sh [source] [destination]`: build the site exactly as GitHub Pages does (Jekyll 3.10 via the `github-pages` gem in `tools/Gemfile`, installed to `tools/vendor/`, run from `tools/` so GitHub's standard plugins load, in production mode). Its output matches the live site byte for byte.
 - `node tools/compare.js [--base <git ref>] [--after <folder>] [views...]`: before-and-after proof. Screenshots every view of `main` and of the working copy (or a built folder such as `_site`) at both sizes, full page, and reports any pixel that differs, saving red difference images to `tools/previews/compare/`. Run it for every change meant to leave the look unchanged, and quote its result in the pull request.
 - `tools/lib.js`: shared helpers (local server, local Inter, view list) used by the tools above.
 
@@ -81,46 +90,68 @@ To show previews to Gianluca, send the PNGs with the SendUserFile tool (mobile f
 
 ## Architecture of the site
 
-Phase 2 (approved: option A, Jekyll, no CMS) is restructuring the site in steps, each its own pull request proven pixel-identical with `tools/compare.js`. Step 1 (images moved to `assets/img/`) and step 2 (shared layout, styles and code in their own files) are done. Update this section as each step lands.
+Phase 2 (approved: option A, Jekyll, no CMS) restructured the site in pull requests, each proven pixel-identical with `tools/compare.js`: photos moved to `assets/img/`, shared layout and assets split out, then real pages with clean addresses and one file per post.
 
-The built page has these parts, in this order (source file in brackets). Find things by searching for the ids or classes below, not by line number (line numbers drift).
+Every page is `<!DOCTYPE html>` from `_layouts/default.html`: head (`_includes/head.html`), `<header class="topbar">` desktop nav and `<nav class="tabbar">` mobile tab bar (`_includes/nav.html`, shown under 760px), the page's single `<main data-view>`, the footer `<footer class="site" id="contact">` (`_includes/footer.html`), then `assets/js/site.js`. Find things by searching for the ids or classes below, not by line number.
 
-1. `<head>` (`_includes/head.html`): title, meta description, canonical, Open Graph and Twitter tags (all pointing at `assets/og-image.jpg`), Google Fonts Inter (400 to 800), then the stylesheet `assets/css/site.css`.
-2. `<header class="topbar">` (`_includes/nav.html`): floating desktop nav capsule (glass). Links carry `data-nav="home|work|blog"`.
-3. `<nav class="tabbar">` (`_includes/nav.html`): floating mobile tab bar (shown under 760px), same `data-nav` links plus Contact.
-4. `<main id="view-home" data-view="home">` (`index.html`, as are items 5 to 7), with sections:
-   - `.hero`: eyebrow, h1 with `.grad-word`, `.lede`, CTA row, portrait (`.hero-photo`, glass `.name-tag`), `.brands` "Partnered with" list. The hero h1 ("Over 14 years...") is the one place a dated figure is allowed.
-   - `.pov` (dark): facilitating photo plus approach statement.
-   - `#record`: "Outcomes I've driven" stat grid (`.record dl > dt/dd`).
-   - `#practice`: "What I help with", the EXD agentic design thinking model. Three `.practice-points`, an interactive model (`.m-node` pills and diamonds) controlling `.m-panel`s with Outcome / Human gate / Agentic lane `.m-lane`s.
-   - `#spotlight`: Dynamic blueprinting four-step tabs (`.fw-step` / `.fw-panel`), `.ev-outcomes`, `.ev-quote`.
-   - `#stack`: Tech ecosystem orbit (`.orbit-node` buttons with `data-name/phase/step/role`).
-   - `#timeline`: Career timeline (`.tl-row`), Bound engagements in `.bracket` with filter `.seg` and `<details class="eng" data-tags="ai growth platform">` cards, earlier roles in `.tl-more`, `.parallel` freelance row.
-   - `#credentials`: two `.cred-group`s plus `.personal` (photo and outside-work line).
-   - `#writing`: "Latest thinking", the two newest posts as `.writing article` rows.
-5. `<main id="view-work" data-view="work" hidden>`: `.page-head` with the animated `#ix` "From one insight to production" panel, then a filter `.seg.work-filter` (counts in `<small>`) and `.work-grid` of `.work-card`s (`data-industry="fs|health|energy|sport|saas"`, `--art` gradient token, "Request the case study" mailto link).
-6. `<main id="view-blog" data-view="blog" hidden>`: `.page-head`, one `.post-feature` (featured, newest post), `.writing.post-list` (other recent posts), `h2.archive-head` "From the archive" and `.writing.post-list.archive`.
-7. One `<main id="post-<slug>" data-view="post" data-title="<Short title> | Gianluca Caico" hidden>` per post, newest first: dynamic-blueprinting, human-centred-transformation, t-shaped-skillset, video-games-ux.
-8. `<footer class="site" id="contact">` (`_includes/footer.html`): dark footer, avatar, email, phone, LinkedIn, `.fine` line. Shared by every view.
-9. `assets/js/site.js`, loaded at the end, with small self-contained blocks: engagement filter, EXD model, blueprinting tabs, "add a note" demo, orbit, work filter, glass lens positioning, nav dark-mode detection, the **router**, and the `#ix` animation.
+**Home** (`index.html`, `<main id="view-home">`), sections in order:
+- `.hero`: eyebrow, h1 with `.grad-word`, `.lede`, CTA row, portrait (`.hero-photo`, glass `.name-tag`), `.brands` "Partnered with" list. The hero h1 ("Over 14 years...") is the one place a dated figure is allowed.
+- `.pov` (dark): facilitating photo plus approach statement.
+- `#record`: "Outcomes I've driven" stat grid (`.record dl > dt/dd`).
+- `#practice`: "What I help with", the EXD agentic design thinking model. Three `.practice-points`, an interactive model (`.m-node` pills and diamonds) controlling `.m-panel`s with Outcome / Human gate / Agentic lane `.m-lane`s.
+- `#spotlight`: Dynamic blueprinting four-step tabs (`.fw-step` / `.fw-panel`), `.ev-outcomes`, `.ev-quote`.
+- `#stack`: Tech ecosystem orbit (`.orbit-node` buttons with `data-name/phase/step/role`).
+- `#timeline`: Career timeline (`.tl-row`), Bound engagements in `.bracket` with filter `.seg` and `<details class="eng" data-tags="ai growth platform">` cards, earlier roles in `.tl-more`, `.parallel` freelance row.
+- `#credentials`: two `.cred-group`s plus `.personal` (photo and outside-work line).
+- `#writing`: "Latest thinking", the two newest non-archive posts, generated from `_posts`.
 
-### Routing (hash routes)
+**Work** (`work.html`, `<main id="view-work">`): `.page-head` with the animated `#ix` "From one insight to production" panel, then a filter `.seg.work-filter` (counts in `<small>`) and `.work-grid` of `.work-card`s (`data-industry="fs|health|energy|sport|saas"`, `--art` gradient token, "Request the case study" mailto link). Case studies can later become their own collection of files in the same way as posts.
 
-- `#/` home, `#/work`, `#/blog`, `#/blog/<slug>` shows `<main id="post-<slug>">`. An unknown slug falls back to the blog index.
-- Any other hash (`#contact`, `#timeline`, `#practice`) scrolls to that id; non-contact ids switch to home first. `#contact` stays on the current view.
-- The router shows one `main[data-view]` at a time, sets `aria-current` on matching `data-nav` links (posts count as "blog") and sets `document.title` from `data-title`.
-- **Adding a post needs no router change**: the id `post-<slug>` is enough.
-- Every view shares the one set of link preview tags in `<head>`, so posts do not get their own link previews today (Phase 2 plan addresses this).
+**Blog** (`blog.html`, `<main id="view-blog">`): `.page-head`, then generated from `_posts`: the newest non-archive post as `.post-feature`, the other non-archive posts in `.writing.post-list`, and posts with `archive: true` under "From the archive".
 
-### How a blog post is wired in (all five places)
+**Posts** (`_posts/*.md` with `_layouts/post.html`, `<main id="post-<slug>">`): `header.article-head` (back link, h1, byline, date, read time, topics), `.prose` body, `.author` bio, `.next-post` card, `.article-foot` buttons.
 
-1. **The post view**: a new `<main id="post-<slug>" data-view="post" data-title="..." hidden>` copied from an existing post. Structure: `header.article-head` (glass `.back` link, h1, `.article-meta` with the `av-sm` avatar, author line, `<time datetime>`, read time, `.post-tags`), then `.prose` body, `.author` bio box, `.next-post` card, `.article-foot` buttons. Place it in date order among the other post `main`s (newest first).
-2. **Blog index card** (`#view-blog`): the newest post is the `.post-feature`. When a new post becomes newest, it takes the feature slot and the previous feature moves to the top of `.writing.post-list` as an `article` (`time`, h3 link, summary `p`, `.post-tags.small` with `li.rt` read time). Older pieces that are not recent go under "From the archive".
-3. **Homepage "Latest thinking"** (`#writing`): shows the two newest posts. Add the new one at the top and drop the oldest of the two.
-4. **Next-post links**: a chain from newest to oldest. The new post's `.next-post` points at the previous newest. The oldest post (`video-games-ux`) has a "Back to the latest" card that must be re-pointed at the new newest post (title, date, read time).
-5. **Checks**: `node tools/preview.js blog/<slug> --full`, `node tools/preview.js blog`, `node tools/preview.js home --section writing`, then `node tools/check-views.js local`.
+**Link previews**: `_includes/head.html` fills the title, description, canonical address, Open Graph and Twitter tags for each page. Home uses the site description in `_config.yml`; Work and Blog set `description` in their front matter; posts use their `title` (as og:title), `short_title` (browser tab) and `summary` (description), with `og:type` article. Every page shares `assets/og-image.jpg` for now.
 
-Images: photos live in `assets/img/` and are linked with absolute paths (`/assets/img/avatar.webp`). The avatar appears in the nav, the mobile id row, every post's meta line and author box, and the footer, all pointing at the same file. New images go in `assets/img/` as webp; discuss any new image with Gianluca first.
+**Navigation**: real links (`/`, `/work`, `/blog/`, `#contact`). Each page sets `nav: home|work|blog` in its front matter so the nav highlights the right tab (posts get `nav: blog` automatically). Links to homepage sections from other pages use `/#timeline`, `/#practice`.
+
+### Adding a blog post (one file)
+
+Create `_posts/YYYY-MM-DD-<slug>.md`. The blog page, homepage "Latest thinking", next-post links, sitemap and link preview all update themselves.
+
+```markdown
+---
+title: "Full post title"
+short_title: "Short title for the browser tab"
+date: 2026-11-20
+summary: "One or two sentences for cards and link previews."
+topics: [Topic one, Topic two, Topic three]
+read_time: 4
+# optional:
+# archive: true                 (lists it under "From the archive" with a "From the archive" note)
+# author_bio: "Custom bio text" (otherwise the standard bio for the post's date is used)
+# extra_link:                   (second button at the foot of the post)
+#   label: "See the EXD model"
+#   url: /#practice
+---
+Opening paragraph, styled as the lead.
+{: .lead}
+
+## A section heading
+
+Normal paragraphs, **bold**, *italic*, [links](/work), lists with "- " or "1. ".
+
+A pull quote paragraph.
+{: .pull}
+```
+
+- `{: .lead}`, `{: .pull}` or `{: .source}` on the line after a paragraph gives it that style.
+- Rich components (`.stat-strip`, `.callout`, `.flow`, `.roles`, `.defs`, `.pairs`, `.t-fig`) are written as HTML blocks inside the Markdown, copied from an existing post, with a blank line before and after.
+- The byline and bio follow the date automatically: 2025 onwards show "Gianluca Caico, Omnia Enterprise" and the Omnia Enterprise bio; earlier posts show the plain byline and older bio.
+- Apostrophes and quotes stay exactly as typed (no automatic curly quotes), and `--`/`---` never become dashes. Still never type an em dash.
+- Checks: `node tools/preview.js blog/<slug> --full`, `node tools/preview.js blog`, `node tools/preview.js home --section writing`, then `node tools/check-views.js local`.
+
+Images: photos live in `assets/img/` and are linked with absolute paths (`/assets/img/avatar.webp`). New images go in `assets/img/` as webp; discuss any new image with Gianluca first.
 
 ### Reusable components (use these, do not invent new ones)
 
@@ -168,4 +199,6 @@ Merged pull requests: https://github.com/gianlucacaico/gianlucacaico.github.io/p
 
 ## Known content notes (flagged, not changed)
 
-None at the moment. Add anything spotted but not yet confirmed with Gianluca here.
+- The Work and Blog page link preview descriptions were new copy in the clean-addresses pull request; Gianluca approved them there.
+
+Add anything spotted but not yet confirmed with Gianluca here.

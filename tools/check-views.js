@@ -1,47 +1,104 @@
 #!/usr/bin/env node
-// Opens every view of the site and checks it renders: the right view shows,
-// every image loads, the page title is set, and there are no script errors.
-// Also checks every in-page "#/..." link points at a view that exists.
+// Checks every page of the site renders properly. Starting from the homepage it
+// follows every internal link and checks each page: the right view shows, every
+// image loads, there are no script errors, and the link preview tags (title,
+// description, canonical address, Open Graph and Twitter) are present and point
+// at the page's own address. It also checks that old "#/" addresses redirect to
+// the new ones, that in-page links like #contact have a target, that no page
+// contains an em dash, and that a
+// missing page shows the "page not found" page.
+//
 // Usage: node tools/check-views.js [url | local]   (default https://gianlucacaico.com/)
 //        "local" builds the working copy with Jekyll and checks that.
 
 const { chromium } = require('playwright');
-let base = process.argv[2] || 'https://gianlucacaico.com/';
+const { LIVE, build, serveDir, liveMode, expectedMain, allViews } = require('./lib');
 
 (async () => {
-  let srv = null;
-  if (base === 'local') { const { build, serveDir } = require('./lib'); srv = await serveDir(build()); base = srv.url; }
+  let base = process.argv[2] || LIVE, srv = null;
+  if (base === 'local') { srv = await serveDir(build()); base = srv.url; }
+  const site = new URL(base).origin;
   const browser = await chromium.launch();
-  const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
-  const errors = [];
+  const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  const page = await context.newPage();
+  let errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   let bad = 0;
+  const report = (ok, msg) => { console.log(`  ${ok ? 'ok' : 'x '} ${msg}`); if (!ok) bad++; };
+  const bust = () => 'check=' + Date.now();
 
-  await page.goto(base + '?check=' + Date.now(), { waitUntil: 'networkidle' });
-  const views = await page.evaluate(() => [...document.querySelectorAll('main[data-view]')].map((m) => m.id));
-  const links = await page.evaluate(() => [...new Set([...document.querySelectorAll('a[href^="#/"]')].map((a) => a.getAttribute('href')))]);
-
-  const hashFor = (id) => id === 'view-home' ? '#/' : id === 'view-work' ? '#/work' : id === 'view-blog' ? '#/blog' : '#/blog/' + id.replace(/^post-/, '');
-  for (const id of views) {
-    await page.evaluate((h) => { location.hash = h; }, hashFor(id));
-    await page.waitForTimeout(250);
-    const r = await page.evaluate(() => {
-      const m = [...document.querySelectorAll('main[data-view]')].find((x) => !x.hidden);
-      const imgs = [...m.querySelectorAll('img[src]')].filter((i) => !i.complete || i.naturalWidth === 0).length;
-      return { shown: m && m.id, brokenImgs: imgs, title: document.title };
-    });
-    const issues = [];
-    if (r.shown !== id) issues.push(`showed ${r.shown}`);
-    if (r.brokenImgs) issues.push(`${r.brokenImgs} broken image(s)`);
-    if (!r.title) issues.push('no page title');
-    console.log(`  ${issues.length ? 'x' : 'ok'} ${hashFor(id)}${issues.length ? ': ' + issues.join(', ') : ''}`);
-    if (issues.length) bad++;
+  if (await liveMode(context, base) === 'hash') {
+    // The old single-page site: every view lives on the homepage behind a "#/" address.
+    await page.goto(base + '?' + bust(), { waitUntil: 'networkidle' });
+    for (const v of allViews()) {
+      const hash = v === 'home' ? '#/' : '#/' + v;
+      await page.evaluate((h) => { location.hash = h; }, hash);
+      await page.waitForTimeout(250);
+      const shown = await page.evaluate(() => { const m = [...document.querySelectorAll('main[data-view]')].find((x) => !x.hidden); return m && m.id; });
+      report(shown === expectedMain(v), hash);
+    }
+  } else {
+    const seen = new Set(), queue = ['/'], anchors = [];
+    while (queue.length) {
+      const path = queue.shift();
+      if (seen.has(path)) continue;
+      seen.add(path);
+      errors = [];
+      const res = await page.goto(site + path + '?' + bust(), { waitUntil: 'networkidle' });
+      const r = await page.evaluate(() => {
+        const meta = (sel) => { const e = document.querySelector(sel); return e ? (e.content || e.href || '') : ''; };
+        const main = document.querySelector('main[data-view]');
+        return {
+          main: main && main.id,
+          broken: [...document.images].filter((i) => !i.complete || i.naturalWidth === 0).length,
+          title: document.title,
+          canonical: meta('link[rel="canonical"]'),
+          tags: ['meta[name="description"]', 'meta[property="og:title"]', 'meta[property="og:description"]', 'meta[property="og:image"]', 'meta[property="og:url"]', 'meta[name="twitter:card"]', 'meta[name="twitter:title"]', 'meta[name="twitter:image"]'].filter((s) => !meta(s)),
+          ogUrl: meta('meta[property="og:url"]'),
+          emDashes: (document.documentElement.outerHTML.match(/\u2014/g) || []).length,
+          links: [...document.querySelectorAll('a[href]')].map((a) => a.getAttribute('href')),
+        };
+      });
+      const issues = [];
+      if (!res || res.status() !== 200) issues.push(`status ${res && res.status()}`);
+      if (!r.main) issues.push('no main view');
+      if (r.broken) issues.push(`${r.broken} broken image(s)`);
+      if (!r.title) issues.push('no page title');
+      if (r.tags.length) issues.push('missing link preview tags: ' + r.tags.join(', '));
+      const own = 'https://gianlucacaico.com' + path;
+      if (r.canonical !== own || r.ogUrl !== own) issues.push(`canonical/og:url is ${r.canonical} (expected ${own})`);
+      if (r.emDashes) issues.push(`${r.emDashes} em dash(es)`);
+      if (errors.length) issues.push('script errors: ' + errors.join('; '));
+      report(!issues.length, `${path} (${r.title})${issues.length ? ': ' + issues.join(', ') : ''}`);
+      for (const href of r.links) {
+        if (href.startsWith('#')) anchors.push([path, href.slice(1)]);
+        else if (href.startsWith('/')) {
+          const [p, h] = href.split('#');
+          if (h) anchors.push([p, h]);
+          if (!seen.has(p)) queue.push(p);
+        }
+      }
+    }
+    // In-page links (#contact, /#timeline) must point at something that exists.
+    const checked = new Set();
+    for (const [p, id] of anchors) {
+      if (checked.has(p + '#' + id)) continue;
+      checked.add(p + '#' + id);
+      await page.goto(site + p + '?' + bust(), { waitUntil: 'domcontentloaded' });
+      report(await page.evaluate((i) => !!document.getElementById(i), id), `link target ${p}#${id} exists`);
+    }
+    // Old "#/" addresses redirect to the new pages.
+    const olds = [['#/', '/'], ['#/work', '/work'], ['#/blog', '/blog/'], ...[...seen].filter((p) => /^\/blog\/[^/]+$/.test(p)).map((p) => ['#' + p, p])];
+    for (const [hash, want] of olds) {
+      await page.goto('about:blank');
+      await page.goto(site + '/' + hash, { waitUntil: 'networkidle' });
+      const got = new URL(page.url()).pathname;
+      report(got === want, `old address /${hash} redirects to ${want}${got === want ? '' : ' (went to ' + got + ')'}`);
+    }
+    // A missing page shows the "page not found" page with a 404 status.
+    const nf = await page.goto(site + '/blog/this-page-does-not-exist', { waitUntil: 'networkidle' });
+    report(nf.status() === 404 && await page.evaluate(() => !!document.getElementById('view-404')), 'missing pages show the "page not found" page (404)');
   }
-  for (const h of links) {
-    const target = h === '#/' ? 'view-home' : h.startsWith('#/work') ? 'view-work' : h === '#/blog' ? 'view-blog' : 'post-' + h.slice(7);
-    if (!views.includes(target)) { console.log(`  x link ${h} points to a view that does not exist`); bad++; }
-  }
-  if (errors.length) { errors.forEach((e) => console.log('  x script error: ' + e)); bad++; }
   await browser.close();
   if (srv) srv.server.close();
   process.exit(bad ? 1 : 0);

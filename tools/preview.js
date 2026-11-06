@@ -21,7 +21,7 @@
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
-const { LIVE, SIZES, build, allViews, expectedMain, serveDir, newContext, openView } = require('./lib');
+const { LIVE, SIZES, build, allViews, modeOf, liveMode, expectedMain, serveDir, newContext, openView } = require('./lib');
 
 function parseArgs(argv) {
   const opts = { targets: [], section: null, live: false, full: false, only: null, out: path.join(__dirname, 'previews') };
@@ -45,7 +45,7 @@ function slug(t, section) {
   return section ? base + '--' + section.replace(/[^a-z0-9-]+/gi, '') : base;
 }
 
-async function shoot(browser, base, target, size, opts) {
+async function shoot(browser, base, target, size, opts, mode) {
   const context = await newContext(browser, size);
   const page = await context.newPage();
   const problems = [];
@@ -53,7 +53,7 @@ async function shoot(browser, base, target, size, opts) {
   page.on('console', (m) => { if (m.type() === 'error') problems.push('Console error: ' + m.text()); });
   page.on('response', (r) => { if (r.status() >= 400) problems.push(`Missing file (${r.status()}): ${r.url()}`); });
 
-  await openView(page, base, target, opts.live);
+  await openView(page, base, target, opts.live, mode);
 
   const fontOk = await page.evaluate(() => document.fonts.check('700 16px Inter') && [...document.fonts].some((f) => f.family.replace(/['"]/g, '') === 'Inter' && f.status === 'loaded'));
   if (!fontOk) problems.push('Inter font did not load');
@@ -80,15 +80,16 @@ async function shoot(browser, base, target, size, opts) {
 (async () => {
   const opts = parseArgs(process.argv.slice(2));
   let srv = null;
-  let base = LIVE;
-  if (!opts.live) { srv = await serveDir(build()); base = srv.url; } // build exactly as GitHub Pages would
+  let base = LIVE, mode = 'path';
   const browser = await chromium.launch();
+  if (!opts.live) { const dir = build(); srv = await serveDir(dir); base = srv.url; mode = modeOf(dir); } // build exactly as GitHub Pages would
+  else { const c = await browser.newContext(); mode = await liveMode(c, base); await c.close(); }
   let failed = false;
   try {
     for (const t of opts.targets) {
       for (const size of Object.keys(SIZES)) {
         if (opts.only && opts.only !== size) continue;
-        const { file, problems } = await shoot(browser, base, t, size, opts);
+        const { file, problems } = await shoot(browser, base, t, size, opts, mode);
         console.log(`${problems.length ? 'WARN' : 'OK  '} ${path.relative(process.cwd(), file)}`);
         problems.forEach((p) => console.log('     - ' + p));
         if (problems.length) failed = true;

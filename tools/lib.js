@@ -12,11 +12,31 @@ const SIZES = {
   desktop: { width: 1280, height: 800 },
 };
 
-// Every view in a built site, found from its <main id="..."> tags, so new posts are included automatically.
+// Every view of the site, so new posts are included automatically. Works on the
+// source folder (posts in _posts), a built folder (blog/*.html) or the old single page.
 function allViews(dir = ROOT) {
+  const posts = fs.existsSync(path.join(dir, '_posts'))
+    ? fs.readdirSync(path.join(dir, '_posts')).filter((f) => /\.(md|html)$/.test(f)).sort().reverse().map((f) => f.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.\w+$/, ''))
+    : fs.existsSync(path.join(dir, 'blog')) ? fs.readdirSync(path.join(dir, 'blog')).filter((f) => f.endsWith('.html')).map((f) => f.slice(0, -5)) : null;
+  if (posts) return ['home', 'work', 'blog', ...posts.map((s) => 'blog/' + s)];
   const html = fs.readFileSync(path.join(dir, 'index.html'), 'utf8');
   return [...html.matchAll(/<main id="([^"]+)" data-view/g)].map((m) =>
     m[1] === 'view-home' ? 'home' : m[1].startsWith('view-') ? m[1].slice(5) : 'blog/' + m[1].replace(/^post-/, ''));
+}
+
+// Address of a view. "path" sites have real pages (/blog/x); the old single page used "#/blog/x".
+function viewUrl(base, t, mode = 'path', bust = false) {
+  const q = bust ? '?preview=' + Date.now() : '';
+  if (mode === 'hash') return base + q + toHash(t);
+  const p = t.replace(/^#?\/?/, '');
+  return base + (p === 'home' ? '' : p) + q;
+}
+
+// Does a built folder (or the live site) use real page addresses? Checks whether /work exists.
+function modeOf(dir) { return fs.existsSync(path.join(dir, 'work.html')) ? 'path' : 'hash'; }
+async function liveMode(context, base) {
+  const r = await context.request.get(base + 'work', { maxRedirects: 0 }).catch(() => null);
+  return r && r.status() === 200 ? 'path' : 'hash';
 }
 
 // "home", "#/", "/" -> "#/"; "blog/x" or "#/blog/x" -> "#/blog/x"
@@ -46,8 +66,14 @@ function serveDir(dir) {
     if (p.endsWith('/')) p += 'index.html';
     let file = path.join(dir, p);
     if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, 'index.html');
-    if (!file.startsWith(dir) || !fs.existsSync(file)) { res.writeHead(404); return res.end('Not found'); }
-    res.writeHead(200, { 'Content-Type': types[path.extname(file)] || 'application/octet-stream' });
+    if (!fs.existsSync(file) && fs.existsSync(file + '.html')) file += '.html'; // /blog/x serves blog/x.html, as on GitHub Pages
+    let status = 200;
+    if (!file.startsWith(dir) || !fs.existsSync(file)) {
+      const notFound = path.join(dir, '404.html');
+      if (!fs.existsSync(notFound)) { res.writeHead(404); return res.end('Not found'); }
+      file = notFound; status = 404;
+    }
+    res.writeHead(status, { 'Content-Type': types[path.extname(file)] || 'application/octet-stream' });
     fs.createReadStream(file).pipe(res);
   });
   return new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve({ server, url: `http://127.0.0.1:${server.address().port}/` })));
@@ -79,11 +105,11 @@ async function newContext(browser, size, scale = 2) {
 }
 
 // Open a view and wait until fonts and images are ready.
-async function openView(page, base, target, bust = false) {
-  await page.goto(base + (bust ? '?preview=' + Date.now() : '') + toHash(target), { waitUntil: 'networkidle' });
+async function openView(page, base, target, bust = false, mode = 'path') {
+  await page.goto(viewUrl(base, target, mode, bust), { waitUntil: 'networkidle' });
   await page.evaluate(() => document.fonts.ready);
   await page.evaluate(() => Promise.all([...document.images].filter((i) => !i.complete).map((i) => new Promise((r) => { i.onload = i.onerror = r; }))));
   await page.waitForTimeout(400);
 }
 
-module.exports = { ROOT, LIVE, SIZES, build, allViews, toHash, expectedMain, serveDir, useLocalInter, newContext, openView };
+module.exports = { ROOT, LIVE, SIZES, build, allViews, toHash, viewUrl, modeOf, liveMode, expectedMain, serveDir, useLocalInter, newContext, openView };

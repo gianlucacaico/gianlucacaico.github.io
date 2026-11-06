@@ -1,21 +1,16 @@
 ---
 name: new-post
-description: Add a new blog post to gianlucacaico.com from Gianluca's draft. Wires it into every place a post appears, matches the existing post layout, renders previews, then waits for approval. Never publishes.
+description: Add a new blog post to gianlucacaico.com from Gianluca's draft. Creates one post file, which the blog page, homepage and next-post links pick up automatically, renders previews, opens a pull request, then waits for approval. Never publishes.
 argument-hint: "<paste the draft, or describe where it is>"
 ---
 
 Draft: $ARGUMENTS
 
-Follow CLAUDE.md, especially "How a blog post is wired in", the Working agreement and the Content rules.
+Follow CLAUDE.md, especially "Adding a blog post", the Working agreement and the Content rules.
 
-1. **Gather the details.** From the draft, or by asking: title, short title for the browser tab, slug (lowercase-with-hyphens, for example `customer-trust-in-ai`), publication date, a one or two sentence summary for the cards, three tags, read time (about 230 words per minute, rounded), and whether it is a new piece or from the archive. If no draft was given, ask for it.
+1. **Gather the details.** From the draft, or by asking: title, short title for the browser tab, slug (lowercase-with-hyphens, for example `customer-trust-in-ai`), publication date, a one or two sentence summary (used on cards and in the LinkedIn/Google link preview), three topics, read time (about 230 words per minute, rounded), and whether it is a new piece or from the archive. If no draft was given, ask for it.
 2. **Review the copy before building.** Check Australian English, no em dashes, the voice (bold, strategic, evidence-led, outcome-first, short paragraphs, plain language), and accuracy (no overclaiming authorship, results or roles; the experience design approach builds on the double diamond and human-centred design, and Gianluca helped sharpen its agentic roles rather than creating it). Flag any newly named client with figures or outcomes and ask him to confirm it is cleared to share. Propose any copy changes as a Current / Proposed table and do not apply them without approval. Never invent facts, sources or figures.
-3. **Build the post view** on a new branch from the latest `main`: a new `<main id="post-<slug>" data-view="post" data-title="<Short title> | Gianluca Caico" hidden>` copied from an existing post's structure, placed in date order among the post `main`s. Use only existing `.prose` components (`p.lead`, `h2`, `.pull`, `.stat-strip`, `.callout`, `.flow`, `.roles`, `.defs`, `.pairs`, lists, `.source`). Reuse the existing author bio box text unless told otherwise; posts dated 2025 onwards use the Omnia Enterprise byline and bio described under Content rules in CLAUDE.md.
-4. **Wire it in everywhere:**
-   - Blog index: if it is the newest post, it becomes the `.post-feature` and the previous feature moves to the top of `.writing.post-list`. Otherwise add it to the list in date order.
-   - Homepage `#writing`: keep the two newest posts.
-   - Next-post chain: the new post points to the next older post; the post that now sits just newer than it points to it; the oldest post's "Back to the latest" card points to the newest post.
-   - Update any read time, date and title shown on cards so they match the post exactly.
-5. **Check and preview.** Run `node tools/preview.js blog/<slug> --full`, `node tools/preview.js blog`, `node tools/preview.js home --section writing`, and `node tools/check-views.js local`. Confirm `grep -c $'\xe2\x80\x94' index.html` (the em dash character) is 0. Send the screenshots with SendUserFile.
-6. **Open the review page.** Commit to this post's branch (for example `claude/post-<slug>`) with a message like "Add blog post: <title>", push, and open a pull request as described in "How changes flow" in CLAUDE.md. Share the link.
-7. **Summarise** every place that changed in a short list, note that the post shares the homepage link preview for now, then **stop and wait for approval**: "Nothing is live yet. Reply 'approved' and run /publish to put this live, or tell me what to change." Never merge or push to `main` here.
+3. **Create the post file** on a new branch from the latest `main` (for example `claude/post-<slug>`): `_posts/YYYY-MM-DD-<slug>.md`, using the template in CLAUDE.md. Write the body in Markdown: `{: .lead}` after the opening paragraph, `##` headings, short paragraphs. For a stat strip, callout, flow, role cards or definition pairs, copy the HTML block from an existing post in `_posts/`. Leave out `author_bio` unless told otherwise: the byline and bio follow the date automatically. Nothing else needs editing: the blog page, homepage "Latest thinking", next-post links, sitemap and link preview update themselves.
+4. **Check and preview.** Run `node tools/preview.js blog/<slug> --full`, `node tools/preview.js blog`, `node tools/preview.js home --section writing`, and `node tools/check-views.js local`. Confirm the post has no em dash (`grep -c $'\xe2\x80\x94' _posts/<file>` is 0). Send the screenshots with SendUserFile, mobile first.
+5. **Open the review page.** Commit with a message like "Add blog post: <title>", push, and open a pull request as described in "How changes flow" in CLAUDE.md, including the post's address (gianlucacaico.com/blog/<slug>) and its link preview title and description. Share the link.
+6. **Summarise** what will appear where (blog page position, homepage, the post that will now link to it), then **stop and wait for approval**: "Nothing is live yet. Reply 'approved' and run /publish to put this live, or tell me what to change." Never merge or push to `main` here.

@@ -1,0 +1,8 @@
+<article>
+          <time datetime="{{ include.post.date | date: "%Y-%m-%d" }}">{{ include.post.date | date: "%-d %B %Y" }}</time>
+          <div>
+            <h3><a href="{{ include.post.url }}">{{ include.post.title }}</a></h3>
+            <p>{{ include.post.summary }}</p>
+            <ul class="post-tags small">{% for t in include.post.topics %}<li>{{ t }}</li>{% endfor %}<li class="rt">{{ include.post.read_time }} min read</li></ul>
+          </div>
+        </article>

@@ -1,0 +1,44 @@
+---
+layout: default
+permalink: /blog/
+nav: blog
+meta_title: "Blog | Gianluca Caico"
+description: "Thinking on CX, experience design and agentic delivery: what holds up, what doesn't, and what changes when agents join the team."
+---
+<main id="view-blog" data-view="blog" data-title="Blog | Gianluca Caico">
+  <section class="page-head">
+    <div class="mesh" aria-hidden="true"></div>
+    <div class="wrap">
+      <p class="eyebrow">Blog</p>
+      <h1>Thinking on CX, experience design and agentic delivery</h1>
+      <p class="lede">Notes from the work: what holds up, what doesn't, and what changes when agents join the team.</p>
+    </div>
+  </section>
+  <section class="tight">
+    <div class="wrap">
+      {%- assign recent = site.posts | where_exp: "p", "p.archive != true" %}
+      {%- assign featured = recent.first %}
+      <a class="post-feature" href="{{ featured.url }}">
+        <div class="post-art" data-tone="dark"><span class="chip-g glass">Featured</span></div>
+        <div class="post-text">
+          <span class="post-meta">{{ featured.date | date: "%-d %B %Y" }} &middot; {{ featured.read_time }} min read</span>
+          <h2>{{ featured.title }}</h2>
+          <p>{{ featured.summary }}</p>
+          <span class="read-more">Read the piece &rarr;</span>
+        </div>
+      </a>
+      <div class="writing post-list">
+        {%- for post in recent offset: 1 %}
+        {% include post-row.html post=post %}
+        {%- endfor %}
+      </div>
+      <h2 class="archive-head">From the archive</h2>
+      <div class="writing post-list archive">
+        {%- assign archived = site.posts | where_exp: "p", "p.archive == true" %}
+        {%- for post in archived %}
+        {% include post-row.html post=post %}
+        {%- endfor %}
+      </div>
+    </div>
+  </section>
+</main>

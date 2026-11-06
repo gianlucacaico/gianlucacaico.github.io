@@ -1,7 +1,35 @@
-# GitHub Pages settings.
-# Everything in this repo is public unless listed here.
+# Site settings for GitHub Pages (Jekyll).
+# Everything in this repo is public unless listed under exclude.
 # Folders starting with a dot (like .claude) are already left out.
 # Do not add a .nojekyll file: it switches these exclusions off.
+
+title: Gianluca Caico
+url: https://gianlucacaico.com
+baseurl: ""
+timezone: Australia/Melbourne
+
+# Default link preview, used by any page that does not set its own.
+description: "Melbourne CX and experience design leader, taking strategy through to delivery for Australia’s banks, insurers, energy providers and sporting codes."
+
+# Blog posts live in _posts and are served at /blog/<slug>.
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+      nav: blog
+      permalink: /blog/:title
+
+plugins:
+  - jekyll-sitemap
+
+# Keep apostrophes, quotes and dashes exactly as typed in posts
+# (no automatic curly quotes, and never an automatic em dash).
+kramdown:
+  smart_quotes: ["apos", "apos", "quot", "quot"]
+  typographic_symbols: { hellip: "...", mdash: "---", ndash: "--", laquo: "<<", raquo: ">>", laquo_space: "<< ", raquo_space: " >>" }
+
 exclude:
   - CLAUDE.md
   - tools/
