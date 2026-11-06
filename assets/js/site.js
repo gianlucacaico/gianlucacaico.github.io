@@ -333,12 +333,11 @@
       return [['--accent', s.accent], ['--accent-deep', s.deep], ['--accent-2', s.partner], ['--round', String(s.round / 100)], ['--glass-blur', s.glass + 'px']];
     }
 
+    // The demo lives in a frame, so settings travel to it as a message (this works wherever the demo is hosted).
     function apply(){
-      var doc = frame.contentDocument, root = doc && doc.documentElement;
-      if (root && root.classList.contains('is-framed')){
-        vars().forEach(function(v){ root.style.setProperty(v[0], v[1]); });
-        if (s.surface === 'dark') root.setAttribute('data-surface', 'dark'); else root.removeAttribute('data-surface');
-      }
+      var v = {};
+      vars().forEach(function(x){ v[x[0]] = x[1]; });
+      if (frame.contentWindow) frame.contentWindow.postMessage({type: 'gc-kit-theme', vars: v, surface: s.surface}, '*');
       var lines = s.surface === 'dark' ? ['<!-- Also add data-surface="dark" to the <html> tag -->'] : [];
       lines.push('<style>', '  :root{');
       vars().forEach(function(v){ lines.push('    ' + v[0] + ':' + v[1] + ';'); });
@@ -413,18 +412,12 @@
       });
     });
 
-    // Size the frame to the demo, so the page scrolls instead of the frame.
-    function fit(){
-      var doc = frame.contentDocument, main = doc && doc.querySelector('main');
-      if (main) frame.style.height = Math.ceil(main.getBoundingClientRect().height) + 2 + 'px';
-    }
-    function ready(){
-      var doc = frame.contentDocument;
-      if (!doc || !doc.querySelector('main') || frame.getAttribute('data-ready')) return;
-      frame.setAttribute('data-ready', '');
-      apply(); fit();
-      if (window.ResizeObserver) new ResizeObserver(fit).observe(doc.querySelector('main'));
-    }
-    frame.addEventListener('load', ready);
-    if (frame.contentDocument && frame.contentDocument.readyState === 'complete') ready();
+    // The demo reports its height, so the frame grows to fit and the page scrolls instead of the frame.
+    var sized = false;
+    window.addEventListener('message', function(e){
+      if (e.source !== frame.contentWindow || !e.data || e.data.type !== 'gc-kit-size') return;
+      frame.style.height = (Math.ceil(e.data.height) + 2) + 'px';
+      if (!sized){ sized = true; apply(); }
+    });
+    frame.addEventListener('load', apply);
   })();

@@ -367,6 +367,20 @@ description: "Every component in the GC kit, built from one stylesheet and one s
 <script>
   /* Demo only: a status line for the filter, and a code panel under each component */
   (function(){
+    // Inside the design system playground: take its settings, and report this page's height.
+    if (document.documentElement.classList.contains('is-framed')){
+      var root = document.documentElement, main = document.querySelector('main');
+      window.addEventListener('message', function(e){
+        var d = e.data;
+        if (!d || d.type !== 'gc-kit-theme' || !d.vars) return;
+        Object.keys(d.vars).forEach(function(k){ if (k.indexOf('--') === 0) root.style.setProperty(k, String(d.vars[k])); });
+        if (d.surface === 'dark') root.setAttribute('data-surface', 'dark'); else root.removeAttribute('data-surface');
+      });
+      var size = function(){ parent.postMessage({type: 'gc-kit-size', height: main.getBoundingClientRect().height}, '*'); };
+      if (window.ResizeObserver) new ResizeObserver(size).observe(main);
+      size();
+    }
+
     var status = document.querySelector('#segmented .filter-status');
     document.querySelector('#segmented .seg').addEventListener('gc:change', function(e){
       status.textContent = e.detail.value === 'All' ? 'Showing all 12 projects' : 'Showing ' + e.detail.value;
