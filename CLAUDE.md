@@ -45,6 +45,7 @@ One conversation, one change, one branch, one pull request.
 - A post dated in the future is not published until the site is next built after that date (a build happens on every merge to `main`).
 - GitHub Pages also publishes `assets/css/style.css` from its default theme. Nothing uses it; leave it.
 - Jekyll turns loose `.md` files into public pages, so every new non-site file must be added to `exclude:` in `_config.yml` (dot-folders such as `.claude/` are already excluded).
+- `gianlucacaico.com/design-system/` is a separate site: the `gianlucacaico/design-system` repo (the GC kit, a design system reverse engineered from this site, with its docs and playground). GitHub Pages serves it under this domain because this repo owns the domain, so it needs no DNS change. Nothing on this site links to it. Never add a page or folder called `design-system` here, or the two could clash. If a colour or component changes here, the kit may need the same change in that repo.
 - Domain registered at Squarespace, which hosts DNS. Email on Google Workspace. Hands off.
 - Cloud sessions should use the **gianlucacaico.github.io** environment, which allows `gianlucacaico.com` and `www.gianlucacaico.com`. The Default environment blocks them, so live checks would fail there.
 
