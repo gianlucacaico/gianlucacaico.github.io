@@ -13,8 +13,8 @@ Follow "How changes flow" in CLAUDE.md. Merging the pull request is what puts a 
 2. **Find the pull request.** `gh api "repos/gianlucacaico/gianlucacaico.github.io/pulls?state=open" --jq '.[] | {number, title, branch: .head.ref, html_url}'`. (The `gh pr` commands are blocked in these sessions; use `gh api` as shown.) If there is none yet, commit and open one as CLAUDE.md describes. If it is already merged (he tapped Merge himself), skip to step 5.
 3. **Check what is about to ship** with `git fetch origin main && git diff origin/main...<branch>` (or `gh api repos/gianlucacaico/gianlucacaico.github.io/pulls/<number> -H 'Accept: application/vnd.github.diff'`):
    - only the approved change is included (one change per pull request; if anything unrelated is mixed in, stop and ask);
-   - `CNAME` is unchanged and the link preview tags in `<head>` are intact;
-   - no em dashes: `grep -c $'\xe2\x80\x94' index.html` (the em dash character) is 0, and none in the title or description;
+   - `CNAME` is unchanged and the link preview tags in `_includes/head.html` are intact;
+   - no em dashes: `grep -rc $'\xe2\x80\x94' index.html _includes _layouts assets/css assets/js` (the em dash character) finds none, and none in the title or description;
    - no `.nojekyll` file, and any new non-site file is listed under `exclude:` in `_config.yml`;
    - `tools/node_modules` and `tools/previews` are not included.
    If `main` has moved on and the pull request cannot merge cleanly, rebase the branch onto `origin/main`, re-render previews, and ask for approval again if anything visible changed.

@@ -35,16 +35,25 @@ r=$(curl -s -o /dev/null -w '%{http_code} %{content_type}' -m 30 "${img:-$SITE/a
 case "$r" in "200 image/jpeg"*) pass "Link preview image loads ($img)";; *) fail "Link preview image problem: $r";; esac
 
 # 6. Project files are not public
-for f in CLAUDE.md CLAUDE CLAUDE.html _config.yml .gitignore tools/preview.js tools/health.sh tools/package.json .claude/skills/publish/SKILL.md; do
+for f in CLAUDE.md CLAUDE CLAUDE.html _config.yml .gitignore _layouts/default.html _includes/head.html tools/preview.js tools/health.sh tools/build.sh tools/Gemfile tools/package.json .claude/skills/publish/SKILL.md; do
   code=$(curl -s -o /dev/null -w '%{http_code}' -m 30 "$SITE/$f")
   [ "$code" = "404" ] && pass "Not public: /$f" || fail "/$f is publicly reachable ($code)"
 done
 
-# 7. Live page matches what is on main in the repo
+# 7. Every published file on the live site matches main, built the way GitHub Pages builds it
 git fetch -q origin main 2>/dev/null
-if git show origin/main:index.html > "$TMP"/health-repo.html 2>/dev/null; then
-  if cmp -s "$TMP"/health-home.html "$TMP"/health-repo.html; then pass "Live page matches index.html on main"
-  else warn "Live page differs from index.html on main (a deploy may still be in progress)"; fi
+mkdir -p "$TMP/src" && git archive origin/main | tar -x -C "$TMP/src"
+if bash tools/build.sh "$TMP/src" "$TMP/built" 2>/dev/null; then
+  total=0; diffs=""
+  while IFS= read -r f; do
+    total=$((total+1))
+    url="${f%index.html}"   # pages are served at their folder address
+    curl -s -m 30 -o "$TMP/live-file" "$SITE/$url$bust"
+    cmp -s "$TMP/live-file" "$TMP/built/$f" || diffs="$diffs /$url"
+  done < <(cd "$TMP/built" && find . -type f ! -name CNAME | sed 's#^\./##' | sort)
+  [ -z "$diffs" ] && pass "Live site matches main ($total published files checked)" || warn "Live differs from main for:$diffs (a deploy may still be in progress)"
+else
+  warn "Could not build main locally to compare with the live site"
 fi
 
 # 8. CNAME is intact

@@ -2,12 +2,15 @@
 // Opens every view of the site and checks it renders: the right view shows,
 // every image loads, the page title is set, and there are no script errors.
 // Also checks every in-page "#/..." link points at a view that exists.
-// Usage: node tools/check-views.js [url]   (default https://gianlucacaico.com/)
+// Usage: node tools/check-views.js [url | local]   (default https://gianlucacaico.com/)
+//        "local" builds the working copy with Jekyll and checks that.
 
 const { chromium } = require('playwright');
-const base = process.argv[2] || 'https://gianlucacaico.com/';
+let base = process.argv[2] || 'https://gianlucacaico.com/';
 
 (async () => {
+  let srv = null;
+  if (base === 'local') { const { build, serveDir } = require('./lib'); srv = await serveDir(build()); base = srv.url; }
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
   const errors = [];
@@ -40,5 +43,6 @@ const base = process.argv[2] || 'https://gianlucacaico.com/';
   }
   if (errors.length) { errors.forEach((e) => console.log('  x script error: ' + e)); bad++; }
   await browser.close();
+  if (srv) srv.server.close();
   process.exit(bad ? 1 : 0);
 })();

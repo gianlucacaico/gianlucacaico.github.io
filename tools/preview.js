@@ -13,6 +13,7 @@
 //   node tools/preview.js home --only mobile      one size only
 //   node tools/preview.js home --out some/folder  choose where screenshots go
 //
+// Local previews are built first with GitHub Pages' own Jekyll (tools/build.sh).
 // Screenshots go to tools/previews/ by default (git ignores that folder).
 // The Inter font is served from a local copy, so screenshots always use the
 // real font even when Google Fonts is unreachable.
@@ -20,7 +21,7 @@
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
-const { ROOT, LIVE, SIZES, allViews, expectedMain, serveDir, newContext, openView } = require('./lib');
+const { LIVE, SIZES, build, allViews, expectedMain, serveDir, newContext, openView } = require('./lib');
 
 function parseArgs(argv) {
   const opts = { targets: [], section: null, live: false, full: false, only: null, out: path.join(__dirname, 'previews') };
@@ -80,7 +81,7 @@ async function shoot(browser, base, target, size, opts) {
   const opts = parseArgs(process.argv.slice(2));
   let srv = null;
   let base = LIVE;
-  if (!opts.live) { srv = await serveDir(ROOT); base = srv.url; }
+  if (!opts.live) { srv = await serveDir(build()); base = srv.url; } // build exactly as GitHub Pages would
   const browser = await chromium.launch();
   let failed = false;
   try {

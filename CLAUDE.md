@@ -32,7 +32,7 @@ One conversation, one change, one branch, one pull request.
 2. **Draft and preview** with `/edit` or `/new-post`: wording table plus mobile and desktop screenshots in the conversation.
 3. **Open the review page.** Commit with a plain-English message, push the branch, write the body to a file in the scratchpad, then `gh api repos/gianlucacaico/gianlucacaico.github.io/pulls -f title="<plain-English title>" -f head=<branch> -f base=main -F body=@<body file>`. The `gh pr ...` commands are blocked in these sessions (GitHub GraphQL is not available), so always use `gh api` (GitHub's REST API) for pull requests. The body says, in plain English: what changes, the Current / Proposed wording table, which pages to look at, and "Nothing is live until this is merged." Screenshots stay in the conversation, because GitHub's API cannot attach images. Revisions are pushed to the same branch.
 4. **Approve and merge.** After Gianluca approves, `/publish` squash-merges the pull request (one commit per change on `main`), waits for the deploy and verifies the live site. If he taps Merge himself in the GitHub app, still verify live (`/health` plus a live preview).
-5. **One change at a time.** The whole site is one file, so parallel pull requests that both edit `index.html` can conflict. If another pull request is open, finish it first or rebase onto `main` after it merges, then re-preview.
+5. **One change at a time.** Every view still lives in `index.html`, so parallel pull requests that both edit it can conflict. If another pull request is open, finish it first or rebase onto `main` after it merges, then re-preview.
 
 ## Hosting and deploy facts
 
@@ -40,7 +40,7 @@ One conversation, one change, one branch, one pull request.
 - Live at https://gianlucacaico.com, HTTPS enforced. `www` redirects to the main domain.
 - GitHub Pages deploys automatically from `main` via the default "pages build and deployment" workflow (Jekyll on). A push is live in about a minute. Check progress with `gh run list -R gianlucacaico/gianlucacaico.github.io -L 3`.
 - Pages serves with `cache-control: max-age=600`, so add a query string such as `?v=<timestamp>` when checking a fresh deploy.
-- Jekyll copies `index.html` as-is because it has no front matter. Never add front matter (`---`) to it.
+- The site is built by Jekyll: `index.html` (front matter `layout: default`) is wrapped in `_layouts/default.html`, which pulls in `_includes/head.html`, `nav.html` and `footer.html`. Never write `{{` or `{%` in copy, because Jekyll treats them as template code. Folders starting with `_` (`_layouts`, `_includes`) are never published as-is.
 - Jekyll turns loose `.md` files into public pages, so every new non-site file must be added to `exclude:` in `_config.yml` (dot-folders such as `.claude/` are already excluded).
 - Domain registered at Squarespace, which hosts DNS. Email on Google Workspace. Hands off.
 - Cloud sessions should use the **gianlucacaico.github.io** environment, which allows `gianlucacaico.com` and `www.gianlucacaico.com`. The Default environment blocks them, so live checks would fail there.
@@ -49,7 +49,13 @@ One conversation, one change, one branch, one pull request.
 
 | Path | What it is | Published? |
 |---|---|---|
-| `index.html` | The entire site (~170KB): inline CSS and JS, images linked from `assets/img/` | Yes |
+| `index.html` | All the views: home, work, blog and every post (~93KB) | Yes (built) |
+| `_layouts/default.html` | The page shell: wraps every page with the head, nav, footer and script | Used in build |
+| `_includes/head.html` | Title, meta description, canonical, Open Graph and Twitter link preview tags, fonts, stylesheet link | Used in build |
+| `_includes/nav.html` | Desktop floating nav and mobile tab bar | Used in build |
+| `_includes/footer.html` | Contact footer shared by every view | Used in build |
+| `assets/css/site.css` | All styles and design tokens | Yes |
+| `assets/js/site.js` | All interactions and the router | Yes |
 | `CNAME` | `gianlucacaico.com`. Never touch | Used by Pages |
 | `assets/og-image.jpg` | 1200x630 link preview image | Yes |
 | `assets/img/` | Site photos as webp: `avatar`, `portrait`, `facilitating`, `personal` | Yes |
@@ -60,28 +66,29 @@ One conversation, one change, one branch, one pull request.
 
 ## Tools
 
-Run from the repo root. First time in a new session: `cd tools && npm install` (installs a local copy of the Inter font).
+Run from the repo root. The tools build the site with GitHub Pages' own Jekyll first (`bash tools/build.sh`, output in `tools/_site/`), so previews show exactly what GitHub will publish. In a fresh session the first build installs the builder and a local copy of the Inter font (a minute or two) unless the environment's setup script already has.
 
 - `node tools/preview.js [view...] [--section ID] [--full] [--only mobile|desktop] [--live]`
   Screenshots at 390px (mobile) and 1280px (desktop), saved to `tools/previews/` (git-ignored). Views: `home`, `work`, `blog`, `blog/<slug>`, or `all`. `--section` takes a section id (`writing`, `record`, `timeline`...) or any CSS selector. `--live` shoots the live site. Inter is served from a local copy so the font always renders; the tool warns if it does not, or if the expected view is not showing. Motion is reduced so screenshots are stable.
   The mobile tab bar is fixed to the bottom of the screen, so it appears over section screenshots, as it would on a phone.
-- `bash tools/health.sh`: checks the live site (domain, www, http to https, link preview tags and image, project files not public, live page matches `main`, CNAME intact, no em dashes, every view renders with images and no script errors).
-- `node tools/check-views.js [url]`: the view check on its own. Works against a local server too.
+- `bash tools/health.sh`: checks the live site (domain, www, http to https, link preview tags and image, project files not public, every published file matches `main` as built by Jekyll, CNAME intact, no em dashes, every view renders with images and no script errors).
+- `node tools/check-views.js [url | local]`: the view check on its own. `local` builds and checks the working copy.
+- `bash tools/build.sh [source] [destination]`: build the site exactly as GitHub Pages does (Jekyll 3.10 via the `github-pages` gem in `tools/Gemfile`, installed to `tools/vendor/`).
 - `node tools/compare.js [--base <git ref>] [--after <folder>] [views...]`: before-and-after proof. Screenshots every view of `main` and of the working copy (or a built folder such as `_site`) at both sizes, full page, and reports any pixel that differs, saving red difference images to `tools/previews/compare/`. Run it for every change meant to leave the look unchanged, and quote its result in the pull request.
 - `tools/lib.js`: shared helpers (local server, local Inter, view list) used by the tools above.
 
 To show previews to Gianluca, send the PNGs with the SendUserFile tool (mobile first).
 
-## Architecture of index.html
+## Architecture of the site
 
-Phase 2 (approved: option A, Jekyll, no CMS) is restructuring the site in steps, each its own pull request proven pixel-identical with `tools/compare.js`. Step 1 (images moved to `assets/img/`) is done. Update this section as each step lands.
+Phase 2 (approved: option A, Jekyll, no CMS) is restructuring the site in steps, each its own pull request proven pixel-identical with `tools/compare.js`. Step 1 (images moved to `assets/img/`) and step 2 (shared layout, styles and code in their own files) are done. Update this section as each step lands.
 
-One HTML file, sections in this order. Find things by searching for the ids or classes below, not by line number (line numbers drift).
+The built page has these parts, in this order (source file in brackets). Find things by searching for the ids or classes below, not by line number (line numbers drift).
 
-1. `<head>`: title, meta description, canonical, Open Graph and Twitter tags (all pointing at `assets/og-image.jpg`), Google Fonts Inter (400 to 800), then one big `<style>` block.
-2. `<header class="topbar">`: floating desktop nav capsule (glass). Links carry `data-nav="home|work|blog"`.
-3. `<nav class="tabbar">`: floating mobile tab bar (shown under 760px), same `data-nav` links plus Contact.
-4. `<main id="view-home" data-view="home">`, with sections:
+1. `<head>` (`_includes/head.html`): title, meta description, canonical, Open Graph and Twitter tags (all pointing at `assets/og-image.jpg`), Google Fonts Inter (400 to 800), then the stylesheet `assets/css/site.css`.
+2. `<header class="topbar">` (`_includes/nav.html`): floating desktop nav capsule (glass). Links carry `data-nav="home|work|blog"`.
+3. `<nav class="tabbar">` (`_includes/nav.html`): floating mobile tab bar (shown under 760px), same `data-nav` links plus Contact.
+4. `<main id="view-home" data-view="home">` (`index.html`, as are items 5 to 7), with sections:
    - `.hero`: eyebrow, h1 with `.grad-word`, `.lede`, CTA row, portrait (`.hero-photo`, glass `.name-tag`), `.brands` "Partnered with" list. The hero h1 ("Over 14 years...") is the one place a dated figure is allowed.
    - `.pov` (dark): facilitating photo plus approach statement.
    - `#record`: "Outcomes I've driven" stat grid (`.record dl > dt/dd`).
@@ -94,8 +101,8 @@ One HTML file, sections in this order. Find things by searching for the ids or c
 5. `<main id="view-work" data-view="work" hidden>`: `.page-head` with the animated `#ix` "From one insight to production" panel, then a filter `.seg.work-filter` (counts in `<small>`) and `.work-grid` of `.work-card`s (`data-industry="fs|health|energy|sport|saas"`, `--art` gradient token, "Request the case study" mailto link).
 6. `<main id="view-blog" data-view="blog" hidden>`: `.page-head`, one `.post-feature` (featured, newest post), `.writing.post-list` (other recent posts), `h2.archive-head` "From the archive" and `.writing.post-list.archive`.
 7. One `<main id="post-<slug>" data-view="post" data-title="<Short title> | Gianluca Caico" hidden>` per post, newest first: dynamic-blueprinting, human-centred-transformation, t-shaped-skillset, video-games-ux.
-8. `<footer class="site" id="contact">`: dark footer, avatar, email, phone, LinkedIn, `.fine` line. Shared by every view.
-9. One `<script>` at the end with small self-contained blocks: engagement filter, EXD model, blueprinting tabs, "add a note" demo, orbit, work filter, glass lens positioning, nav dark-mode detection, the **router**, and the `#ix` animation.
+8. `<footer class="site" id="contact">` (`_includes/footer.html`): dark footer, avatar, email, phone, LinkedIn, `.fine` line. Shared by every view.
+9. `assets/js/site.js`, loaded at the end, with small self-contained blocks: engagement filter, EXD model, blueprinting tabs, "add a note" demo, orbit, work filter, glass lens positioning, nav dark-mode detection, the **router**, and the `#ix` animation.
 
 ### Routing (hash routes)
 
@@ -111,7 +118,7 @@ One HTML file, sections in this order. Find things by searching for the ids or c
 2. **Blog index card** (`#view-blog`): the newest post is the `.post-feature`. When a new post becomes newest, it takes the feature slot and the previous feature moves to the top of `.writing.post-list` as an `article` (`time`, h3 link, summary `p`, `.post-tags.small` with `li.rt` read time). Older pieces that are not recent go under "From the archive".
 3. **Homepage "Latest thinking"** (`#writing`): shows the two newest posts. Add the new one at the top and drop the oldest of the two.
 4. **Next-post links**: a chain from newest to oldest. The new post's `.next-post` points at the previous newest. The oldest post (`video-games-ux`) has a "Back to the latest" card that must be re-pointed at the new newest post (title, date, read time).
-5. **Checks**: `node tools/preview.js blog/<slug> blog home --section writing`, then `node tools/check-views.js` against a local server or run it after publish.
+5. **Checks**: `node tools/preview.js blog/<slug> --full`, `node tools/preview.js blog`, `node tools/preview.js home --section writing`, then `node tools/check-views.js local`.
 
 Images: photos live in `assets/img/` and are linked with absolute paths (`/assets/img/avatar.webp`). The avatar appears in the nav, the mobile id row, every post's meta line and author box, and the footer, all pointing at the same file. New images go in `assets/img/` as webp; discuss any new image with Gianluca first.
 
@@ -127,7 +134,7 @@ Images: photos live in `assets/img/` and are linked with absolute paths (`/asset
 - Photos: `.ph` containers with `--pos` focal point; avatars `.av` with sizes `av-xs`, `av-sm`, `av-md`, `av-lg`.
 - Dark sections set `data-tone="dark"` so the floating nav switches to light text over them.
 
-### Design tokens (CSS variables in `:root`)
+### Design tokens (CSS variables in `:root` of `assets/css/site.css`)
 
 | Token | Value | Use |
 |---|---|---|

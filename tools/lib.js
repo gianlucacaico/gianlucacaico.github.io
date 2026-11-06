@@ -3,6 +3,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { execFileSync } = require('child_process');
 
 const ROOT = path.resolve(__dirname, '..');
 const LIVE = 'https://gianlucacaico.com/';
@@ -29,6 +30,12 @@ function toHash(t) {
 function expectedMain(t) {
   const hash = toHash(t);
   return hash === '#/' ? 'view-home' : hash === '#/work' ? 'view-work' : hash === '#/blog' ? 'view-blog' : 'post-' + hash.slice(7);
+}
+
+// Build a folder with GitHub Pages' Jekyll (tools/build.sh) and return where it was built.
+function build(src = ROOT, dest = path.join(__dirname, '_site')) {
+  execFileSync('bash', [path.join(__dirname, 'build.sh'), src, dest], { stdio: 'inherit' });
+  return dest;
 }
 
 // Tiny static server for a folder, so absolute links (/assets/...) behave as on the live site.
@@ -79,4 +86,4 @@ async function openView(page, base, target, bust = false) {
   await page.waitForTimeout(400);
 }
 
-module.exports = { ROOT, LIVE, SIZES, allViews, toHash, expectedMain, serveDir, useLocalInter, newContext, openView };
+module.exports = { ROOT, LIVE, SIZES, build, allViews, toHash, expectedMain, serveDir, useLocalInter, newContext, openView };
