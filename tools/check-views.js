@@ -2,8 +2,8 @@
 // Checks every page of the site renders properly. Starting from the homepage it
 // follows every internal link and checks each page: the right view shows, every
 // image loads, there are no script errors, and the link preview tags (title,
-// description, canonical address, Open Graph and Twitter) are present and point
-// at the page's own address. It also checks that old "#/" addresses redirect to
+// description, canonical address, Open Graph and Twitter) are present, point
+// at the page's own address, and the preview image loads. It also checks that old "#/" addresses redirect to
 // the new ones, that in-page links like #contact have a target, that no page
 // contains an em dash, and that a
 // missing page shows the "page not found" page.
@@ -55,6 +55,7 @@ const { LIVE, build, serveDir, liveMode, expectedMain, allViews } = require('./l
           canonical: meta('link[rel="canonical"]'),
           tags: ['meta[name="description"]', 'meta[property="og:title"]', 'meta[property="og:description"]', 'meta[property="og:image"]', 'meta[property="og:url"]', 'meta[name="twitter:card"]', 'meta[name="twitter:title"]', 'meta[name="twitter:image"]'].filter((s) => !meta(s)),
           ogUrl: meta('meta[property="og:url"]'),
+          ogImage: meta('meta[property="og:image"]'),
           emDashes: (document.documentElement.outerHTML.match(/\u2014/g) || []).length,
           links: [...document.querySelectorAll('a[href]')].map((a) => a.getAttribute('href')),
         };
@@ -68,6 +69,11 @@ const { LIVE, build, serveDir, liveMode, expectedMain, allViews } = require('./l
       const own = 'https://gianlucacaico.com' + path;
       if (r.canonical !== own || r.ogUrl !== own) issues.push(`canonical/og:url is ${r.canonical} (expected ${own})`);
       if (r.emDashes) issues.push(`${r.emDashes} em dash(es)`);
+      // The link preview image must exist (checked on the site being tested, so new images count locally).
+      if (r.ogImage) {
+        const img = await context.request.get(r.ogImage.replace('https://gianlucacaico.com', site)).catch(() => null);
+        if (!img || img.status() !== 200 || !/^image\//.test(img.headers()['content-type'] || '')) issues.push(`link preview image ${r.ogImage} does not load`);
+      }
       if (errors.length) issues.push('script errors: ' + errors.join('; '));
       report(!issues.length, `${path} (${r.title})${issues.length ? ': ' + issues.join(', ') : ''}`);
       for (const href of r.links) {

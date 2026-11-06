@@ -1,0 +1,46 @@
+/* Shared look for the post and page artwork in tools/art.
+   Same tokens and glass material as assets/css/site.css.
+   Every artwork is drawn on a 1200 x 630 canvas (the link preview shape).
+   Keep the important parts inside the middle 80% of the width: the blog page's featured
+   card trims the sides. Keep the bottom-left corner (below y 540, left of x 340) free of
+   text: the "Featured" label sits there. */
+:root{
+  --ink:#0A2540; --paper:#FFFFFF; --panel:#F6F9FC; --muted:#425466; --faint:#8792A2; --muted-on-ink:#A6B4CC;
+  --violet:#635BFF; --violet-deep:#4B44D6; --coral:#EB5D76; --amber:#FFA659; --cyan:#12B5CB; --border:#E3E8EF;
+}
+*{box-sizing:border-box;}
+html, body{margin:0; width:1200px; height:630px; overflow:hidden; background:var(--ink);}
+body{font-family:'Inter', system-ui, sans-serif; -webkit-font-smoothing:antialiased; color:#fff;}
+.canvas{position:relative; width:1200px; height:630px; overflow:hidden; isolation:isolate;}
+
+/* Soft colour fields behind everything */
+.mesh{position:absolute; inset:-12%; z-index:-2; filter:blur(36px);}
+/* Faint dot grid, fading out towards the edges */
+.dots{position:absolute; inset:0; z-index:-1; opacity:0.5;
+  background-image:radial-gradient(rgba(255,255,255,0.22) 1px, transparent 1.4px); background-size:22px 22px;
+  -webkit-mask-image:radial-gradient(70% 75% at 50% 50%, #000 30%, transparent 85%); mask-image:radial-gradient(70% 75% at 50% 50%, #000 30%, transparent 85%);}
+
+/* Glass on dark, as .glass.on-dark on the site */
+.g{position:absolute; border-radius:16px;
+  background:linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.06));
+  border:1px solid rgba(255,255,255,0.24);
+  box-shadow:0 18px 40px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.34);
+  -webkit-backdrop-filter:blur(16px) saturate(170%); backdrop-filter:blur(16px) saturate(170%);}
+.g.solid{background:linear-gradient(135deg, rgba(255,255,255,0.96), rgba(255,255,255,0.86)); color:var(--ink); border-color:rgba(255,255,255,0.9);}
+.pill{border-radius:999px;}
+
+.lbl{font-size:13px; font-weight:700; letter-spacing:0.01em; color:rgba(255,255,255,0.92);}
+.lbl-s{font-size:11px; font-weight:600; letter-spacing:0.02em; color:var(--muted-on-ink);}
+.abs{position:absolute;}
+svg.abs{overflow:visible;}
+
+/* Light share cards (Work, Blog), matching the homepage link preview */
+body.light, .light .canvas{background:#fff; color:var(--ink);}
+.light .mesh{inset:-25% -10% auto -10%; height:120%; filter:blur(60px);}
+.card-copy{position:absolute; left:72px; top:0; bottom:0; width:520px; display:flex; flex-direction:column; justify-content:center;}
+.card-eyebrow{margin:0 0 18px; font-size:20px; font-weight:600; color:var(--violet-deep);}
+.card-name{margin:0; font-size:60px; font-weight:700; letter-spacing:-0.03em; line-height:1.05; color:var(--ink);}
+.card-sub{margin:14px 0 0; font-size:24px; font-weight:500; color:var(--muted); letter-spacing:-0.01em;}
+.card-line{margin:30px 0 0; font-size:25px; font-weight:700; line-height:1.36; letter-spacing:-0.015em; color:var(--ink);}
+.grad{background:linear-gradient(100deg, var(--violet), var(--coral)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.card-url{position:absolute; left:72px; bottom:52px; font-size:18px; font-weight:600; color:var(--faint);}
