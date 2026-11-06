@@ -56,6 +56,8 @@ body.light, .light .canvas{background:#fff; color:var(--ink);}
    between x 600 and 1000, lighter detail allowed in the middle band (y 140 to 280).
    No words or figures: they would be too small to read on a card. */
 html.work, html.work body, html.work .canvas{width:1040px; height:400px;}
+/* Drawn at 75% so each illustration sits inside the card with room around it. */
+html.work svg.abs{transform:scale(0.75); transform-origin:1000px 200px;}
 .work .canvas{background:var(--art);}
 .work .dots{-webkit-mask-image:radial-gradient(60% 80% at 75% 50%, #000 20%, transparent 80%); mask-image:radial-gradient(60% 80% at 75% 50%, #000 20%, transparent 80%);}
 .work .glow{position:absolute; z-index:-1; right:-80px; top:-60px; width:620px; height:520px; background:radial-gradient(50% 50% at 50% 50%, rgba(255,255,255,0.14), transparent 70%);}
