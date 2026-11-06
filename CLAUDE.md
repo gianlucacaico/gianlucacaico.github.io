@@ -12,7 +12,7 @@ This file is not published (see `_config.yml`). Keep it current whenever the str
 - **Never delete or edit `CNAME`.** Never remove the link preview tags (meta description, Open Graph, Twitter). Do not touch anything related to DNS or email (Squarespace DNS, Google Workspace, SPF, the GitHub Pages verification TXT record). None of it lives in this repo, and it should never need changing.
 - **Never add a `.nojekyll` file.** It switches off the `_config.yml` exclusions and would publish CLAUDE.md and tools/.
 - **If unsure about a fact, client detail or design decision, ask.** Do not guess.
-- Work happens on `main` only after approval. Use `/publish` to ship; never push unapproved work to `main`.
+- **Every change goes through a pull request.** Merging the pull request is what puts it live, and only happens after explicit approval (via `/publish`, or Gianluca tapping Merge himself). Never push directly to `main`.
 
 ## Content rules
 
@@ -23,6 +23,16 @@ This file is not published (see `_config.yml`). Keep it current whenever the str
 - **Messaging in metadata and evergreen copy must age well**: no "14 years" or other dated figures there. The homepage hero is the exception; Gianluca reviews it himself.
 - **Client confidentiality:** before adding any newly named client with figures or outcomes, flag it and ask him to confirm it is cleared to share. Clients already on the site: NAB, Westpac, Bupa, Generation Life, Protecht, AGL, AFL.
 
+## How changes flow (branches and pull requests)
+
+One conversation, one change, one branch, one pull request.
+
+1. **Branch.** Start from the latest `main`: `git fetch origin main && git checkout -b claude/<short-description> origin/main` (unless the session has already set up a branch for you).
+2. **Draft and preview** with `/edit` or `/new-post`: wording table plus mobile and desktop screenshots in the conversation.
+3. **Open the review page.** Commit with a plain-English message, push the branch, then `gh pr create -R gianlucacaico/gianlucacaico.github.io --base main --head <branch> --title "<plain-English title>" --body "<body>"`. The body says, in plain English: what changes, the Current / Proposed wording table, which pages to look at, and "Nothing is live until this is merged." Screenshots stay in the conversation, because GitHub's API cannot attach images. Revisions are pushed to the same branch.
+4. **Approve and merge.** After Gianluca approves, `/publish` squash-merges the pull request (one commit per change on `main`), waits for the deploy and verifies the live site. If he taps Merge himself in the GitHub app, still verify live (`/health` plus a live preview).
+5. **One change at a time.** The whole site is one file, so parallel pull requests that both edit `index.html` can conflict. If another pull request is open, finish it first or rebase onto `main` after it merges, then re-preview.
+
 ## Hosting and deploy facts
 
 - Repo: `gianlucacaico/gianlucacaico.github.io` (personal account, not Bound). Default branch `main`.
@@ -32,6 +42,7 @@ This file is not published (see `_config.yml`). Keep it current whenever the str
 - Jekyll copies `index.html` as-is because it has no front matter. Never add front matter (`---`) to it.
 - Jekyll turns loose `.md` files into public pages, so every new non-site file must be added to `exclude:` in `_config.yml` (dot-folders such as `.claude/` are already excluded).
 - Domain registered at Squarespace, which hosts DNS. Email on Google Workspace. Hands off.
+- Cloud sessions should use the **gianlucacaico.github.io** environment, which allows `gianlucacaico.com` and `www.gianlucacaico.com`. The Default environment blocks them, so live checks would fail there.
 
 ### Files
 
@@ -136,7 +147,11 @@ Type: Inter 400 to 800, headings 700 with -0.025em tracking. Radius: 999px pills
 
 ## Rolling back
 
-Every published change is one commit on `main`. To undo one: `git revert <commit>` then push to `main` (after approval), which publishes the previous version in about a minute. The full history is at https://github.com/gianlucacaico/gianlucacaico.github.io/commits/main. Never force-push or rewrite history on `main`.
+Every published change is one merged pull request and one commit on `main`. To undo one:
+- **From the phone:** open the merged pull request on GitHub and tap **Revert**. That creates a new pull request that undoes the change; merging it puts the previous version back live in about a minute.
+- **Or ask Claude:** "roll back <change>". Claude makes a branch with `git revert <commit>`, opens a pull request, and merges it after approval, then verifies live.
+
+Merged pull requests: https://github.com/gianlucacaico/gianlucacaico.github.io/pulls?q=is%3Amerged. Full history: https://github.com/gianlucacaico/gianlucacaico.github.io/commits/main. Never force-push or rewrite history on `main`.
 
 ## Known content notes (flagged, not changed)
 

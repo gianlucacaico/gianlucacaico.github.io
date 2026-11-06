@@ -18,5 +18,6 @@ Follow CLAUDE.md, especially the Working agreement and Content rules.
    | Home, Outcomes section | ... | ... |
 
    Keep it readable on a phone. For layout changes, describe the change in one plain sentence.
-5. **Make the edit** in the working copy only, then run `node tools/preview.js <view> --section <id>` for each affected place (and `node tools/check-views.js` against a local server if structure changed). Send the screenshots with SendUserFile.
-6. **Stop and wait for approval.** Say: "Reply 'approved' and run /publish to put this live, or tell me what to change." Do not commit or push. If changes are requested, revise and repeat steps 4 to 6.
+5. **Make the edit** on this change's own branch (see "How changes flow" in CLAUDE.md), then run `node tools/preview.js <view> --section <id>` for each affected place (and `node tools/check-views.js` against a local server if structure changed). Send the screenshots with SendUserFile.
+6. **Open the review page.** Commit to this change's branch with a plain-English message, push, and open a pull request (or update the existing one) as described in "How changes flow" in CLAUDE.md. Share the link.
+7. **Stop and wait for approval.** Say: "Nothing is live yet. Reply 'approved' and run /publish to put this live, or tell me what to change." Never merge or push to `main` here. If changes are requested, revise, push to the same branch and repeat steps 4 to 7.
