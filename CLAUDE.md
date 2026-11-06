@@ -21,6 +21,7 @@ This file is not published (see `_config.yml`). Keep it current whenever the str
 - **Voice** for posts and new copy: bold, strategic, evidence-led, outcome-first, short paragraphs, plain language. The `gianluca-thought-leadership-voice` skill, if available, captures this voice.
 - **Accuracy over flattery.** The experience design approach builds on the industry-standard double diamond and human-centred design. Gianluca helped Bound's team sharpen the agentic roles within it; he did not create the model. Never overclaim authorship, results or roles.
 - **Messaging in metadata and evergreen copy must age well**: no "14 years" or other dated figures there. The homepage hero is the exception; Gianluca reviews it himself.
+- **Bylines and bios by date:** posts dated 2025 onwards use the byline "Gianluca Caico, Omnia Enterprise", and their author bio describes Bound as "part of Omnia Enterprise within The Omnia Collective". Posts before 2025 keep the plain "Gianluca Caico" byline and their existing bio.
 - **Client confidentiality:** before adding any newly named client with figures or outcomes, flag it and ask him to confirm it is cleared to share. Clients already on the site: NAB, Westpac, Bupa, Generation Life, Protecht, AGL, AFL.
 
 ## How changes flow (branches and pull requests)
@@ -155,5 +156,4 @@ Merged pull requests: https://github.com/gianlucacaico/gianlucacaico.github.io/p
 
 ## Known content notes (flagged, not changed)
 
-- The Dynamic blueprinting post byline says "Gianluca Caico, Omnia Enterprise"; every other post says Bound. Confirm with Gianluca before changing.
-- The Dynamic blueprinting post is dated "2026" with no day or month, unlike the other posts.
+None at the moment. Add anything spotted but not yet confirmed with Gianluca here.
