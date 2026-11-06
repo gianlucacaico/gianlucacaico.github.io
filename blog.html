@@ -4,6 +4,8 @@ permalink: /blog/
 nav: blog
 meta_title: "Blog | Gianluca Caico"
 description: "Thinking on CX, experience design and agentic delivery: what holds up, what doesn't, and what changes when agents join the team."
+share_image: /assets/img/share/blog.jpg
+share_alt: "Gianluca Caico, CX and experience design leader, with cards for recent blog posts"
 ---
 <main id="view-blog" data-view="blog" data-title="Blog | Gianluca Caico">
   <section class="page-head">
@@ -19,7 +21,7 @@ description: "Thinking on CX, experience design and agentic delivery: what holds
       {%- assign recent = site.posts | where_exp: "p", "p.archive != true" %}
       {%- assign featured = recent.first %}
       <a class="post-feature" href="{{ featured.url }}">
-        <div class="post-art" data-tone="dark"><span class="chip-g glass">Featured</span></div>
+        <div class="post-art{% if featured.image %} has-img{% endif %}" data-tone="dark">{% if featured.image %}<img src="/assets/img/blog/{{ featured.image }}.webp" srcset="/assets/img/blog/{{ featured.image }}-sm.webp 720w, /assets/img/blog/{{ featured.image }}.webp 2400w" sizes="(max-width:760px) 100vw, 520px" width="2400" height="1260" alt="">{% endif %}<span class="chip-g glass">Featured</span></div>
         <div class="post-text">
           <span class="post-meta">{{ featured.date | date: "%-d %B %Y" }} &middot; {{ featured.read_time }} min read</span>
           <h2>{{ featured.title }}</h2>

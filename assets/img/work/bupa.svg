@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 156" width="240" height="156" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<rect x="64" y="24" width="76" height="28" rx="14" fill="rgba(255,255,255,0.88)"/><rect x="83" y="35" width="38" height="6" rx="3" fill="rgba(10,37,64,0.4)"/>
+<rect x="150" y="24" width="52" height="28" rx="14" fill="#3FD3E3"/><circle cx="188" cy="38" r="10" fill="#fff"/>
+<rect x="210" y="24" width="28" height="28" rx="7" fill="rgba(255,255,255,0.88)"/><path d="M217 38 l5 5 l8 -9" stroke="#0A2540" stroke-width="3"/>
+<rect x="96" y="66" width="164" height="28" rx="8" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.42)" stroke-width="1.5"/><rect x="110" y="77" width="56" height="6" rx="3" fill="rgba(255,255,255,0.6)"/><path d="M172 73 V87" stroke="#fff" stroke-width="2"/>
+<circle cx="140" cy="114" r="9" fill="#fff"/><circle cx="164" cy="114" r="9" fill="rgba(255,255,255,0.55)"/><circle cx="188" cy="114" r="9" fill="rgba(255,255,255,0.3)"/><circle cx="212" cy="114" r="9" fill="#3FD3E3"/><circle cx="236" cy="114" r="9" fill="rgba(255,255,255,0.2)"/>
+<rect x="132" y="136" width="100" height="7" rx="3.5" fill="rgba(255,255,255,0.2)"/><rect x="132" y="136" width="80" height="7" rx="3.5" fill="rgba(255,255,255,0.9)"/>
+</svg>

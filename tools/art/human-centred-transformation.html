@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<title>Human-centred transformation</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="art.css">
+<style>
+  /* AI, strategy and leadership overlap, with people at the centre. Warm palette: this one is about trust. */
+  .mesh{background:
+    radial-gradient(34% 46% at 50% 50%, rgba(235,93,118,0.55), transparent 70%),
+    radial-gradient(34% 46% at 14% 20%, rgba(99,91,255,0.75), transparent 70%),
+    radial-gradient(30% 42% at 88% 82%, rgba(255,166,89,0.6), transparent 70%), #24163F;}
+  .ring-lbl{position:absolute; transform:translate(-50%, -50%); font-size:19px; font-weight:700; letter-spacing:-0.01em; color:#fff; text-shadow:0 2px 12px rgba(0,0,0,0.25);}
+  .people{position:absolute; left:600px; top:318px; transform:translate(-50%, -50%); width:96px; height:96px; border-radius:50%;
+    background:#fff; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 0 0 10px rgba(255,255,255,0.14), 0 0 0 22px rgba(255,255,255,0.06), 0 20px 50px rgba(235,93,118,0.55);}
+  .people-lbl{position:absolute; left:600px; top:394px; transform:translateX(-50%); padding:5px 13px; font-size:13px; font-weight:700; color:var(--ink); background:#fff; border-radius:999px; box-shadow:0 8px 20px rgba(0,0,0,0.2);}
+  .card{padding:16px 18px;}
+  .card .k{font-size:12px; font-weight:600; color:var(--muted-on-ink); letter-spacing:0.01em;}
+  .card .big{white-space:nowrap; margin-top:6px; font-size:28px; font-weight:800; letter-spacing:-0.02em; line-height:1.1;}
+  .card .big em{font-style:normal; color:var(--amber);}
+  .steps{margin-top:12px; display:flex; flex-direction:column; gap:9px;}
+  .steps div{display:flex; align-items:center; gap:10px; font-size:13px; font-weight:600; color:rgba(255,255,255,0.9);}
+  .steps b{width:12px; height:12px; border-radius:50%; border:2px solid rgba(255,255,255,0.55);}
+  .steps b.on{background:var(--coral); border-color:var(--coral); box-shadow:0 0 0 4px rgba(235,93,118,0.25);}
+</style>
+</head>
+<body data-kind="post">
+<div class="canvas">
+  <div class="mesh"></div>
+  <div class="dots"></div>
+
+  <svg class="abs" width="1200" height="630" style="left:0; top:0;">
+    <defs>
+      <radialGradient id="fa" cx="50%" cy="35%" r="65%"><stop offset="0" stop-color="#8D87FF" stop-opacity="0.55"/><stop offset="1" stop-color="#635BFF" stop-opacity="0.12"/></radialGradient>
+      <radialGradient id="fb" cx="35%" cy="60%" r="65%"><stop offset="0" stop-color="#FFA659" stop-opacity="0.5"/><stop offset="1" stop-color="#FFA659" stop-opacity="0.1"/></radialGradient>
+      <radialGradient id="fc" cx="65%" cy="60%" r="65%"><stop offset="0" stop-color="#EB5D76" stop-opacity="0.55"/><stop offset="1" stop-color="#EB5D76" stop-opacity="0.12"/></radialGradient>
+      <linearGradient id="edge" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.75"/><stop offset="1" stop-color="#fff" stop-opacity="0.2"/></linearGradient>
+    </defs>
+    <!-- People around the work: customers, staff and stakeholders -->
+    <ellipse cx="600" cy="318" rx="330" ry="250" fill="none" stroke="rgba(255,255,255,0.16)" stroke-width="1.5" stroke-dasharray="3 7"/>
+    <g style="mix-blend-mode:screen">
+      <circle cx="600" cy="232" r="160" fill="url(#fa)" stroke="url(#edge)" stroke-width="1.5"/>
+      <circle cx="525" cy="362" r="160" fill="url(#fb)" stroke="url(#edge)" stroke-width="1.5"/>
+      <circle cx="675" cy="362" r="160" fill="url(#fc)" stroke="url(#edge)" stroke-width="1.5"/>
+    </g>
+    <g id="avatars"></g>
+  </svg>
+
+  <span class="ring-lbl" style="left:600px; top:132px;">AI</span>
+  <span class="ring-lbl" style="left:446px; top:430px;">Strategy</span>
+  <span class="ring-lbl" style="left:754px; top:430px;">Leadership</span>
+
+  <div class="people">
+    <svg width="46" height="46" viewBox="-23 -23 46 46" fill="none" stroke="#0A2540" stroke-width="3" stroke-linecap="round">
+      <circle cx="-7" cy="-6" r="6"/><path d="M-19 15c0-7 5-11 12-11s12 4 12 11"/>
+      <circle cx="9" cy="-8" r="5" stroke="#EB5D76"/><path d="M8 3c6 0 11 3 11 10" stroke="#EB5D76"/>
+    </svg>
+  </div>
+  <span class="people-lbl">People</span>
+
+  <div class="g card" style="left:134px; top:92px; width:236px;">
+    <div class="k">Synthesising 20 interviews</div>
+    <div class="big">1 week <em>&rarr;</em> 1 day</div>
+  </div>
+  <div class="g card" style="left:870px; top:372px; width:196px;">
+    <div class="k">Continuity</div>
+    <div class="steps">
+      <div><b class="on"></b>Strategy</div>
+      <div><b class="on"></b>Blueprint</div>
+      <div><b class="on"></b>Requirements</div>
+      <div><b></b>Delivery</div>
+    </div>
+  </div>
+</div>
+<script>
+  // Small people sitting on the outer orbit.
+  const g = document.getElementById('avatars');
+  [[-110, '#8D87FF'], [-45, '#fff'], [-5, '#FFA659'], [75, '#fff'], [120, '#EB5D76'], [180, '#fff']].forEach(([deg, c]) => {
+    const a = deg * Math.PI / 180, x = 600 + 330 * Math.cos(a), y = 318 + 250 * Math.sin(a);
+    g.insertAdjacentHTML('beforeend', `<g transform="translate(${x} ${y})">
+      <circle r="17" fill="rgba(255,255,255,0.14)" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+      <circle cy="-4" r="4.5" fill="${c}"/><path d="M-8 9c0-5 3.5-7.5 8-7.5s8 2.5 8 7.5" fill="${c}"/></g>`);
+  });
+</script>
+</body>
+</html>

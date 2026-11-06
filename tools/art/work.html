@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<title>Work link preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="art.css">
+<style>
+  /* Link preview for /work: the homepage card's layout, with a wall of case study cards
+     (each with its project's cropped pictogram and text label, as on the Work page) instead of the portrait. */
+  .mesh{background:
+    radial-gradient(40% 50% at 12% 18%, rgba(99,91,255,0.22), transparent 70%),
+    radial-gradient(36% 46% at 70% 8%, rgba(255,166,89,0.16), transparent 70%),
+    radial-gradient(36% 46% at 90% 90%, rgba(235,93,118,0.12), transparent 70%);}
+  .wc{position:absolute; width:236px; height:206px; border-radius:18px; overflow:hidden; background:#fff; border:1px solid var(--border); box-shadow:0 22px 44px rgba(10,37,64,0.14), 0 2px 6px rgba(10,37,64,0.05);}
+  .wc .art{position:relative; height:96px; background:var(--a); display:flex; align-items:flex-end; padding:12px;}
+  .wc .pic{position:absolute; top:0; right:0; height:100%; width:auto;}
+  .wc .art span{position:relative; font-size:11px; font-weight:600; color:rgba(255,255,255,0.88);}
+  .wc .body{padding:14px 16px;}
+  .wc .h{height:10px; width:78%; border-radius:5px; background:var(--ink);}
+  .wc .o{margin-top:12px; padding-left:8px; border-left:2px solid var(--violet);}
+  .wc .o i{display:block; height:7px; border-radius:4px; background:rgba(10,37,64,0.55);}
+  .wc .o i + i{margin-top:6px; width:62%;}
+  .wc .t{margin-top:14px; display:flex; gap:5px;}
+  .wc .t i{height:14px; width:44px; border-radius:999px; background:var(--panel); border:1px solid var(--border);}
+</style>
+</head>
+<body class="light" data-kind="share">
+<div class="canvas">
+  <div class="mesh"></div>
+
+  <div class="card-copy">
+    <p class="card-eyebrow">Work</p>
+    <h1 class="card-name">Gianluca Caico</h1>
+    <p class="card-sub">CX &amp; Experience Design Leader</p>
+    <p class="card-line"><span class="grad">Outcomes</span> across the brands Australians use every week.</p>
+  </div>
+  <span class="card-url">gianlucacaico.com/work</span>
+
+  <div id="wall"></div>
+</div>
+<script>
+  // Two staggered columns of case study cards, running off the top and bottom edges.
+  // Each card shows that project's pictogram from assets/img/work.
+  const cards = [
+    [652, -150, 'sport', 'Sport', 'afl'], [652, 74, 'fs', 'Financial services', 'generation-life'], [652, 298, 'health', 'Health', 'bupa'], [652, 522, 'fs', 'Financial services', 'westpac'],
+    [910, -40, 'saas', 'SaaS', 'protecht'], [910, 184, 'energy', 'Energy', 'agl'], [910, 408, 'fs', 'Financial services', 'nab'],
+  ];
+  document.getElementById('wall').innerHTML = cards.map(([x, y, a, chip, img]) =>
+    `<div class="wc" style="left:${x}px; top:${y}px; --a:var(--art-${a}); "><div class="art"><img class="pic" src="/assets/img/work/${img}.svg" alt=""><span>${chip}</span></div>
+      <div class="body"><div class="h"></div><div class="o"><i></i><i></i></div><div class="t"><i></i><i></i><i></i></div></div></div>`).join('');
+</script>
+</body>
+</html>

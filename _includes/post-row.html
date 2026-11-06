@@ -1,8 +1,11 @@
-<article>
+<article{% if include.post.image %} class="has-thumb"{% endif %}>
           <time datetime="{{ include.post.date | date: "%Y-%m-%d" }}">{{ include.post.date | date: "%-d %B %Y" }}</time>
           <div>
             <h3><a href="{{ include.post.url }}">{{ include.post.title }}</a></h3>
             <p>{{ include.post.summary }}</p>
             <ul class="post-tags small">{% for t in include.post.topics %}<li>{{ t }}</li>{% endfor %}<li class="rt">{{ include.post.read_time }} min read</li></ul>
           </div>
+          {%- if include.post.image %}
+          <a class="row-thumb" href="{{ include.post.url }}" tabindex="-1" aria-hidden="true"><img src="/assets/img/blog/{{ include.post.image }}-sm.webp" width="720" height="378" alt=""></a>
+          {%- endif %}
         </article>

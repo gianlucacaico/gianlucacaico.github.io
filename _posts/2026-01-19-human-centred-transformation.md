@@ -5,6 +5,8 @@ date: 2026-01-19
 summary: "Why transformation succeeds or fails on trust, not tooling, even as AI moves further into the design process."
 topics: [Transformation, AI, Leadership]
 read_time: 3
+image: human-centred-transformation
+image_alt: "Illustration of three overlapping circles for AI, strategy and leadership, with people at the centre"
 extra_link:
   label: "Read: Dynamic blueprinting"
   url: /blog/dynamic-blueprinting

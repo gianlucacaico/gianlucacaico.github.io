@@ -5,6 +5,8 @@ date: 2023-01-29
 summary: "Four principles for multiplying your impact by growing the skills of the people around you."
 topics: [Leadership, Facilitation, Product]
 read_time: 2
+image: t-shaped-skillset
+image_alt: "Illustration of a T-shaped skill set, with breadth across disciplines on top and depth in experience design below, passed on to teammates"
 archive: true
 ---
 In this ever-growing landscape of the design industry, the gap between things like AI and product design is shortening.

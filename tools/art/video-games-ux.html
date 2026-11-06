@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<title>Video games and UX</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="art.css">
+<style>
+  /* A generic open-world vista with a game interface on top. Each piece of the interface
+     stands for one principle in the post: menu tabs (help and documentation), a contrasting
+     waypoint (recognition over recall), "Checkpoint saved" (recovering from errors),
+     the four-slot dial (consistency) and the open landscape (control and freedom). */
+  body{background:#0B1E3A;}
+  .hud{font-size:12px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:rgba(255,255,255,0.85);}
+  .tabs{left:50%; top:34px; transform:translateX(-50%); display:flex; gap:4px; padding:5px;}
+  .tabs span{padding:8px 16px; border-radius:999px; font-size:14px; font-weight:700; color:rgba(255,255,255,0.75);}
+  .tabs span.on{background:#fff; color:var(--ink);}
+  .meter{display:flex; gap:4px;}
+  .meter i{width:26px; height:9px; border-radius:3px; background:var(--c); box-shadow:0 0 10px var(--c);}
+  .meter i.off{background:rgba(255,255,255,0.18); box-shadow:none;}
+  .toast{left:96px; bottom:54px; display:flex; align-items:center; gap:12px; padding:12px 18px 12px 12px;}
+  .toast .ok{width:30px; height:30px; border-radius:50%; background:var(--cyan-bright); display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 5px rgba(18,181,203,0.25);}
+  .toast b{display:block; font-size:15px; font-weight:700;}
+  .toast small{display:block; font-size:12px; font-weight:500; color:var(--muted-on-ink); margin-top:1px;}
+  .pin{position:absolute; transform:translate(-50%, -100%); display:flex; flex-direction:column; align-items:center;}
+  .pin .d{width:22px; height:22px; transform:rotate(45deg); border-radius:4px; background:var(--amber); box-shadow:0 0 0 6px rgba(255,166,89,0.25), 0 0 26px rgba(255,166,89,0.9);}
+  .pin .m{margin-top:14px; padding:3px 9px; border-radius:999px; font-size:12px; font-weight:700; color:var(--ink); background:#fff;}
+  .pin .s{width:2px; height:34px; margin-top:6px; background:linear-gradient(rgba(255,166,89,0.9), rgba(255,166,89,0));}
+</style>
+</head>
+<body data-kind="post">
+<div class="canvas">
+  <svg class="abs" width="1200" height="630" style="left:0; top:0;">
+    <defs>
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#0A1D3A"/><stop offset="0.45" stop-color="#2B2A7A"/><stop offset="0.7" stop-color="#7A3F86"/><stop offset="0.82" stop-color="#EB7A6E"/>
+      </linearGradient>
+      <radialGradient id="sun" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#FFE2B8"/><stop offset="0.55" stop-color="#FFA659"/><stop offset="1" stop-color="#EB5D76" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#FFA659" stop-opacity="0.55"/><stop offset="1" stop-color="#FFA659" stop-opacity="0"/></radialGradient>
+      <linearGradient id="far" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6B5BC9"/><stop offset="1" stop-color="#3B3290"/></linearGradient>
+      <linearGradient id="mid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3A3394"/><stop offset="1" stop-color="#1F2266"/></linearGradient>
+      <linearGradient id="near" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1A2560"/><stop offset="1" stop-color="#0E1A3E"/></linearGradient>
+      <linearGradient id="front" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0F2048"/><stop offset="1" stop-color="#0A1630"/></linearGradient>
+    </defs>
+    <rect width="1200" height="630" fill="url(#sky)"/>
+    <g id="stars" fill="#fff"></g>
+    <circle cx="610" cy="352" r="230" fill="url(#glow)"/>
+    <circle cx="610" cy="360" r="82" fill="url(#sun)"/>
+    <!-- Mountains, far to near -->
+    <path d="M0 380 L90 300 L170 340 L260 250 L360 330 L430 290 L520 360 L600 330 L700 372 L790 280 L880 320 L960 240 L1060 310 L1130 270 L1200 320 V630 H0Z" fill="url(#far)" opacity="0.95"/>
+    <path d="M0 430 L120 350 L210 400 L330 320 L450 410 L560 380 L660 420 L760 340 L870 400 L990 330 L1100 390 L1200 360 V630 H0Z" fill="url(#mid)"/>
+    <path d="M0 500 L150 420 L260 470 L380 400 L520 480 L650 450 L780 500 L900 430 L1040 480 L1200 430 V630 H0Z" fill="url(#near)"/>
+    <path d="M0 560 C200 520 380 540 600 530 C820 520 1000 545 1200 515 V630 H0Z" fill="url(#front)"/>
+    <!-- Snow caps catching the light -->
+    <g fill="rgba(255,255,255,0.55)">
+      <path d="M260 250 L282 268 L268 266 L256 276 L246 263Z"/><path d="M960 240 L984 258 L970 256 L958 266 L946 254Z"/><path d="M790 280 L808 294 L796 293 L786 300 L778 291Z"/>
+    </g>
+    <!-- Trail to the waypoint -->
+    <path d="M600 630 C590 590 640 560 700 520 C740 494 760 470 760 448" fill="none" stroke="rgba(255,166,89,0.55)" stroke-width="3" stroke-dasharray="2 10" stroke-linecap="round"/>
+  </svg>
+
+  <!-- Help and documentation: the menu's horizontal categories -->
+  <div class="g pill tabs"><span>Skills</span><span>Inventory</span><span>Crafting</span><span class="on">Map</span></div>
+
+  <!-- Health and stamina -->
+  <div class="abs" style="left:96px; top:44px;">
+    <div class="hud">Health</div>
+    <div class="meter" style="--c:#12B5CB; margin-top:8px;"><i></i><i></i><i></i><i></i><i></i><i class="off"></i></div>
+    <div class="meter" style="--c:#FFA659; margin-top:6px;"><i style="width:40px"></i><i style="width:40px"></i><i class="off" style="width:40px"></i></div>
+  </div>
+
+  <!-- Minimap with a quest marker -->
+  <div class="g" style="left:974px; top:36px; width:132px; height:132px; border-radius:50%; overflow:hidden;">
+    <svg width="132" height="132" viewBox="0 0 132 132">
+      <g stroke="rgba(255,255,255,0.14)" stroke-width="1"><path d="M0 33H132M0 66H132M0 99H132M33 0V132M66 0V132M99 0V132"/></g>
+      <path d="M20 104 C40 90 52 96 66 80 C78 66 92 60 104 40" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="2.5" stroke-dasharray="1 6" stroke-linecap="round"/>
+      <rect x="97" y="32" width="14" height="14" rx="2.5" transform="rotate(45 104 39)" fill="#FFA659"/>
+      <path d="M66 58 L74 78 L66 73 L58 78Z" fill="#fff"/>
+    </svg>
+  </div>
+
+  <!-- Recognition over recall: one contrasting marker to look for -->
+  <div class="pin" style="left:760px; top:448px;"><span class="d"></span><span class="m">120 m</span><span class="s"></span></div>
+
+  <!-- Recovering from errors -->
+  <div class="g toast">
+    <span class="ok"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+    <span><b>Checkpoint saved</b><small>Pick up where you left off</small></span>
+  </div>
+
+  <!-- Consistency: the same four-slot dial in the menu and in play -->
+  <div class="abs" style="left:982px; top:432px; width:132px; height:132px;">
+    <svg width="132" height="132" viewBox="-66 -66 132 132">
+      <g id="slots"></g>
+      <circle r="22" fill="rgba(10,37,64,0.55)" stroke="rgba(255,255,255,0.35)"/>
+      <circle r="4" fill="#FFA659"/>
+    </svg>
+  </div>
+</div>
+<script>
+  // A few stars, seeded so they land in the same place every time.
+  let s = 11; const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
+  let stars = '';
+  for (let i = 0; i < 46; i++) stars += `<circle cx="${(rnd() * 1200).toFixed(1)}" cy="${(rnd() * 230).toFixed(1)}" r="${(0.6 + rnd() * 1.1).toFixed(2)}" opacity="${(0.25 + rnd() * 0.5).toFixed(2)}"/>`;
+  document.getElementById('stars').innerHTML = stars;
+
+  // Four quarter slots: top, right, bottom, left. The top one is selected.
+  const g = document.getElementById('slots');
+  const path = (r, fill) => `<path d="M0 -60 A60 60 0 0 1 60 0 L28 0 A28 28 0 0 0 0 -28Z" transform="rotate(${r - 45})" fill="${fill}" stroke="rgba(255,255,255,0.4)" stroke-width="1.2"/>`;
+  g.innerHTML = path(0, '#fff') + path(90, 'rgba(255,255,255,0.16)') + path(180, 'rgba(255,255,255,0.16)') + path(270, 'rgba(255,255,255,0.16)')
+    + '<rect x="-6" y="-50" width="12" height="12" rx="2" fill="#635BFF"/>'
+    + '<circle cx="44" cy="0" r="6" fill="none" stroke="#fff" stroke-width="2"/>'
+    + '<path d="M-6 38 L6 38 L0 50Z" fill="#fff"/>'
+    + '<path d="M-50 -5 V5 M-44 -5 V5 M-38 -5 V5" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>';
+</script>
+</body>
+</html>
