@@ -67,6 +67,7 @@ One conversation, one change, one branch, one pull request.
 | `_includes/head.html` | Title, meta description, canonical, Open Graph and Twitter link preview tags (filled per page), old-address redirect, fonts, stylesheet | Used in build |
 | `_includes/nav.html` | Desktop floating nav and mobile tab bar; highlights the current section from the page's `nav:` setting | Used in build |
 | `_includes/footer.html` | Contact footer shared by every page | Used in build |
+| `_includes/subnav.html` | Work's sub-navigation, "Projects \| Design system", shown under the intro on `/work` and `/system` | Used in build |
 | `_includes/post-row.html` | One row in a post list (homepage and blog page) | Used in build |
 | `assets/css/site.css` | All styles and design tokens | Yes |
 | `assets/js/site.js` | All interactions (filters, model, tabs, orbit, glass lens, nav) | Yes |
@@ -110,13 +111,13 @@ Every page is `<!DOCTYPE html>` from `_layouts/default.html`: head (`_includes/h
 - `#credentials`: two `.cred-group`s plus `.personal` (photo and outside-work line).
 - `#writing`: "Latest thinking", the two newest non-archive posts, generated from `_posts`.
 
-**Work** (`work.html`, `<main id="view-work">`): `.page-head` with the animated `#ix` "From one insight to production" panel, then a filter `.seg.work-filter` (counts in `<small>`) and `.work-grid` of `.work-card`s (`data-industry="fs|health|energy|sport|saas"`, `--art` gradient token, "Request the case study" mailto link). Case studies can later become their own collection of files in the same way as posts.
+**Work** (`work.html`, `<main id="view-work">`): `.page-head` with the Work sub-navigation under the lede (`_includes/subnav.html`) and the animated `#ix` "From one insight to production" panel, then a filter `.seg.work-filter` (counts in `<small>`) and `.work-grid` of `.work-card`s (`data-industry="fs|health|energy|sport|saas"`, `--art` gradient token, "Request the case study" mailto link). Case studies can later become their own collection of files in the same way as posts.
 
 **Blog** (`blog.html`, `<main id="view-blog">`): `.page-head`, then generated from `_posts`: the newest non-archive post as `.post-feature`, the other non-archive posts in `.writing.post-list`, and posts with `archive: true` under "From the archive".
 
 **Posts** (`_posts/*.md` with `_layouts/post.html`, `<main id="post-<slug>">`): `header.article-head` (back link, h1, byline, date, read time, topics), `.prose` body, `.author` bio, `.next-post` card, `.article-foot` buttons.
 
-**Design system** (`system.html`, `<main id="view-system">`, `nav: work`, linked from the Work page's second `.work-note`): a proof of concept Gianluca asked for "just for fun", to explore a reusable design system. Sections: `.page-head.sys-head`, `#foundations` (colour, type, shape, motion, layout, all generated from `_data/kit.yml`), `#playground` (`.sys-controls` glass panel plus an iframe `.sys-frame` showing `/kit/demo`; the script at the end of `site.js` sends the settings to the frame as messages, and the demo replies with its height so the frame fits it) and `#use` (copyable lines, including the playground's current theme). Page-only styles are the `.sys-*` block at the end of `site.css`.
+**Design system** (`system.html`, `<main id="view-system">`, `nav: work`, reached from the Work sub-navigation, which both pages show under their intro): a proof of concept Gianluca asked for "just for fun", to explore a reusable design system. Sections: `.page-head.sys-head`, `#foundations` (colour, type, shape, motion, layout, all generated from `_data/kit.yml`), `#playground` (`.sys-controls` glass panel plus an iframe `.sys-frame` showing `/kit/demo`; the script at the end of `site.js` sends the settings to the frame as messages, and the demo replies with its height so the frame fits it) and `#use` (copyable lines, including the playground's current theme). Page-only styles are the `.sys-*` block at the end of `site.css`.
 
 **The kit** (`kit/`): a distilled, themeable copy of the site's styles, so other pages and prototypes can use the look with one line (`<link rel="stylesheet" href="https://gianlucacaico.com/kit/gc.css">`). Class names match the site. Components use roles rather than raw colours (`--accent`, `--accent-deep`, `--accent-2`, `--surface`, `--strong`, `--accent-ink`...), every radius scales with `--round`, glass blur with `--glass-blur`, and `data-surface="dark"` on `<html>` or any block remaps the neutrals for dark. The kit is separate from `site.css`, so the live site does not run on it yet: when a site token or component changes, update `_data/kit.yml` (and `kit/gc.css` if it is a component) too. Anything served from `/kit/` reaches every page that uses it, so treat kit changes like site changes. `kit/demo.html` must keep its link preview tags and `<main data-view>` so `check-views.js` passes.
 
@@ -168,6 +169,7 @@ Images: photos live in `assets/img/` and are linked with absolute paths (`/asset
 - Glass material: `.glass` (and `.on-dark`), with `.lens` for the sliding highlight in `.seg` and nav.
 - Section scaffold: `section.bordered > .wrap > .section-head (h2 + .count) + .section-intro`.
 - Segmented filter: `.seg.glass` with buttons `aria-pressed`, plus a `.filter-status` line.
+- Sub-navigation: the same `.seg.glass` with links, the current one marked `aria-current="page"` (`.subnav`, in `_includes/subnav.html`). The lens slides under it automatically.
 - Cards: `.work-card`, `.eng` (details), `.post-feature`, `.writing article`, `.next-post`, `.cred-group`.
 - Tags and chips: `.post-tags` (violet wash), `.tags` (grey), `.chip`, `.chip-g` (glass on art), `.soon`, `.spot-tag`.
 - Post body (`.prose`): `p.lead`, `h2`, `h3`, lists, `.pull` quote, `.stat-strip` (dark dl), `.callout` (dark stat card), `.flow` (step chips with arrows), `.roles` (three cards), `.defs` (definition pairs), `.pairs` (two-column list), `.t-fig`, `.source`, `.archive-note`, `hr`.

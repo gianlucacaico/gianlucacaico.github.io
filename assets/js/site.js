@@ -135,7 +135,7 @@
     }
     function all(){
       document.querySelectorAll('.nav-links, .tabbar').forEach(function(c){ place(c, c.querySelector('[aria-current="page"]')); });
-      document.querySelectorAll('.seg').forEach(function(c){ place(c, c.querySelector('button[aria-pressed="true"]')); });
+      document.querySelectorAll('.seg').forEach(function(c){ place(c, c.querySelector('button[aria-pressed="true"], a[aria-current="page"]')); });
     }
     document.querySelectorAll('.seg').forEach(function(seg){
       seg.addEventListener('click', function(e){ if (e.target.closest('button')) requestAnimationFrame(all); });
