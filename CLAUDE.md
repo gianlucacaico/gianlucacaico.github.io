@@ -49,9 +49,10 @@ One conversation, one change, one branch, one pull request.
 
 | Path | What it is | Published? |
 |---|---|---|
-| `index.html` | The entire site (~500KB): inline CSS, JS and base64 webp images | Yes |
+| `index.html` | The entire site (~170KB): inline CSS and JS, images linked from `assets/img/` | Yes |
 | `CNAME` | `gianlucacaico.com`. Never touch | Used by Pages |
 | `assets/og-image.jpg` | 1200x630 link preview image | Yes |
+| `assets/img/` | Site photos as webp: `avatar`, `portrait`, `facilitating`, `personal` | Yes |
 | `_config.yml` | Tells Pages what not to publish | No |
 | `CLAUDE.md` | This manual | No (excluded) |
 | `tools/` | Preview and health-check scripts | No (excluded) |
@@ -66,10 +67,14 @@ Run from the repo root. First time in a new session: `cd tools && npm install` (
   The mobile tab bar is fixed to the bottom of the screen, so it appears over section screenshots, as it would on a phone.
 - `bash tools/health.sh`: checks the live site (domain, www, http to https, link preview tags and image, project files not public, live page matches `main`, CNAME intact, no em dashes, every view renders with images and no script errors).
 - `node tools/check-views.js [url]`: the view check on its own. Works against a local server too.
+- `node tools/compare.js [--base <git ref>] [--after <folder>] [views...]`: before-and-after proof. Screenshots every view of `main` and of the working copy (or a built folder such as `_site`) at both sizes, full page, and reports any pixel that differs, saving red difference images to `tools/previews/compare/`. Run it for every change meant to leave the look unchanged, and quote its result in the pull request.
+- `tools/lib.js`: shared helpers (local server, local Inter, view list) used by the tools above.
 
 To show previews to Gianluca, send the PNGs with the SendUserFile tool (mobile first).
 
 ## Architecture of index.html
+
+Phase 2 (approved: option A, Jekyll, no CMS) is restructuring the site in steps, each its own pull request proven pixel-identical with `tools/compare.js`. Step 1 (images moved to `assets/img/`) is done. Update this section as each step lands.
 
 One HTML file, sections in this order. Find things by searching for the ids or classes below, not by line number (line numbers drift).
 
@@ -108,7 +113,7 @@ One HTML file, sections in this order. Find things by searching for the ids or c
 4. **Next-post links**: a chain from newest to oldest. The new post's `.next-post` points at the previous newest. The oldest post (`video-games-ux`) has a "Back to the latest" card that must be re-pointed at the new newest post (title, date, read time).
 5. **Checks**: `node tools/preview.js blog/<slug> blog home --section writing`, then `node tools/check-views.js` against a local server or run it after publish.
 
-Images: today every image is base64 webp inline. The avatar is repeated (nav, mobile id row, post meta, author box, footer). If a post needs an image, discuss first; Phase 2 moves images to real files.
+Images: photos live in `assets/img/` and are linked with absolute paths (`/assets/img/avatar.webp`). The avatar appears in the nav, the mobile id row, every post's meta line and author box, and the footer, all pointing at the same file. New images go in `assets/img/` as webp; discuss any new image with Gianluca first.
 
 ### Reusable components (use these, do not invent new ones)
 
