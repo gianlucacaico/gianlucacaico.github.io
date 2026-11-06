@@ -50,22 +50,3 @@ body.light, .light .canvas{background:#fff; color:var(--ink);}
 .card-line{margin:30px 0 0; font-size:25px; font-weight:700; line-height:1.36; letter-spacing:-0.015em; color:var(--ink);}
 .grad{background:linear-gradient(100deg, var(--violet), var(--coral)); -webkit-background-clip:text; background-clip:text; color:transparent;}
 .card-url{position:absolute; left:72px; bottom:52px; font-size:18px; font-weight:600; color:var(--faint);}
-
-/* Project artwork for the Work page cards: 1040 x 400. The client name (top left) and
-   chips (bottom left) sit on top on the site, so draw on the right: the main object
-   between x 600 and 1000, lighter detail allowed in the middle band (y 140 to 280).
-   No words or figures: they would be too small to read on a card. */
-html.work, html.work body, html.work .canvas{width:1040px; height:400px;}
-/* Drawn at 75% so each illustration sits inside the card with room around it. */
-html.work svg.abs{transform:scale(0.75); transform-origin:1000px 200px;}
-.work .canvas{background:var(--art);}
-.work .dots{-webkit-mask-image:radial-gradient(60% 80% at 75% 50%, #000 20%, transparent 80%); mask-image:radial-gradient(60% 80% at 75% 50%, #000 20%, transparent 80%);}
-.work .glow{position:absolute; z-index:-1; right:-80px; top:-60px; width:620px; height:520px; background:radial-gradient(50% 50% at 50% 50%, rgba(255,255,255,0.14), transparent 70%);}
-.gl{fill:rgba(255,255,255,0.13); stroke:rgba(255,255,255,0.34); stroke-width:1.5;}
-.gl2{fill:rgba(255,255,255,0.2); stroke:rgba(255,255,255,0.4); stroke-width:1.5;}
-.wh{fill:#fff;}
-.sh{filter:drop-shadow(0 16px 24px rgba(0,0,0,0.32));}
-.ln{fill:none; stroke:rgba(255,255,255,0.45); stroke-width:3; stroke-linecap:round; stroke-linejoin:round;}
-.dash{stroke-dasharray:3 9;}
-.sk{fill:rgba(255,255,255,0.55);}
-.sk2{fill:rgba(255,255,255,0.28);}

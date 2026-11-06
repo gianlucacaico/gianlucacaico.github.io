@@ -8,9 +8,8 @@
 //   <slug>.webp     2400 x 1260  banner on the post page and the blog page's featured card
 //   <slug>-sm.webp   720 x 378   thumbnail in post lists
 //   <slug>.jpg      1200 x 630   link preview (LinkedIn, iMessage, Slack...)
-// Project artwork (<body data-kind="work">, 1040 x 400) becomes assets/img/work/<name>.webp, the art on a Work page card.
 // Page artwork (<body data-kind="share">) becomes assets/img/share/<name>.jpg, a link preview only.
-// Posts and projects are rendered before pages, because the Blog and Work previews show their artwork.
+// Posts are rendered before pages, because the Blog page's preview shows the post artwork.
 
 const fs = require('fs');
 const path = require('path');
@@ -18,7 +17,7 @@ const { chromium } = require('playwright');
 const { ROOT, serveDir, useLocalInter } = require('./lib');
 
 const ART = path.join(__dirname, 'art');
-const SIZE = { post: [1200, 630], share: [1200, 630], work: [1040, 400] };
+const SIZE = { post: [1200, 630], share: [1200, 630] };
 
 (async () => {
   const wanted = process.argv.slice(2);
@@ -46,7 +45,6 @@ const SIZE = { post: [1200, 630], share: [1200, 630], work: [1040, 400] };
     // Resize and encode in the browser itself, so no extra image software is needed.
     const outputs = {
       post: [[`blog/${name}.webp`, 2400, 'image/webp', 0.86], [`blog/${name}-sm.webp`, 720, 'image/webp', 0.82], [`blog/${name}.jpg`, 1200, 'image/jpeg', 0.9]],
-      work: [[`work/${name}.webp`, 1040, 'image/webp', 0.86]],
       share: [[`share/${name}.jpg`, 1200, 'image/jpeg', 0.9]],
     }[kind];
     const encoded = await page.evaluate(async ({ b64, outputs }) => {

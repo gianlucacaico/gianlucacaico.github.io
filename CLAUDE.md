@@ -68,14 +68,14 @@ One conversation, one change, one branch, one pull request.
 | `assets/img/` | Site photos as webp: `avatar`, `portrait`, `facilitating`, `personal` | Yes |
 | `assets/img/blog/` | Each post's artwork, made by `tools/art.js`: `<slug>.webp` (banner), `<slug>-sm.webp` (list thumbnail), `<slug>.jpg` (link preview) | Yes |
 | `assets/img/logos/` | White client logos shown on the Work page cards (`<client>.svg`, Protecht as `.png`) | Yes |
-| `assets/img/work/` | Each Work page project's card artwork (`<client>.webp`, 1040x400), made by `tools/art.js` | Yes |
+| `assets/img/work/` | Each Work page project's pictogram (`<client>.svg`, 132x88), shown in a dark glass tile on its card | Yes |
 | `assets/img/share/` | Link preview images for the Work and Blog pages (`work.jpg`, `blog.jpg`), made by `tools/art.js` | Yes |
 | `assets/og-image.jpg` | 1200x630 link preview image (portrait card) for the homepage, and for any page without its own | Yes |
 | `CNAME` | `gianlucacaico.com`. Never touch | Used by Pages |
 | `_config.yml` | Site settings: address, timezone, default link preview description, post addresses, sitemap, quote handling, files not to publish | No |
 | `CLAUDE.md` | This manual | No (excluded) |
 | `tools/` | Build, preview, comparison, artwork and health-check scripts | No (excluded) |
-| `tools/art/` | Source of the post, project and page artwork: one HTML file per image, plus shared `art.css` | No (excluded) |
+| `tools/art/` | Source of the post and page artwork: one HTML file per image, plus shared `art.css` | No (excluded) |
 | `.claude/skills/` | Project slash commands | No (dot-folder) |
 
 ## Tools
@@ -89,7 +89,7 @@ Run from the repo root. The tools build the site with GitHub Pages' own Jekyll f
 - `node tools/check-views.js [url | local]`: follows every internal link from the homepage and checks each page (right view, images, no script errors, no em dashes, link preview tags pointing at the page's own address, link preview image loads), every in-page link target, every old `#/` redirect and the 404 page. `local` builds and checks the working copy.
 - `bash tools/build.sh [source] [destination]`: build the site exactly as GitHub Pages does (Jekyll 3.10 via the `github-pages` gem in `tools/Gemfile`, installed to `tools/vendor/`, run from `tools/` so GitHub's standard plugins load, in production mode). Its output matches the live site byte for byte.
 - `node tools/compare.js [--base <git ref>] [--after <folder>] [views...]`: before-and-after proof. Screenshots every view of `main` and of the working copy (or a built folder such as `_site`) at both sizes, full page, and reports any pixel that differs, saving red difference images to `tools/previews/compare/`. Run it for every change meant to leave the look unchanged, and quote its result in the pull request.
-- `node tools/art.js [name...]`: turns the artwork in `tools/art/` into images. A post's file (`tools/art/<slug>.html`, `data-kind="post"`) becomes `assets/img/blog/<slug>.webp`, `-sm.webp` and `.jpg`; a project's file (`data-kind="work"`) becomes `assets/img/work/<name>.webp`; a page's file (`data-kind="share"`) becomes `assets/img/share/<name>.jpg`. Re-run it after editing any artwork, and re-run `blog` or `work` after adding a post's or project's artwork if that page's link preview should show it.
+- `node tools/art.js [name...]`: turns the artwork in `tools/art/` into images. A post's file (`tools/art/<slug>.html`, `data-kind="post"`) becomes `assets/img/blog/<slug>.webp`, `-sm.webp` and `.jpg`; a page's file (`data-kind="share"`) becomes `assets/img/share/<name>.jpg`. Re-run it after editing any artwork, and re-run `blog` or `work` after adding a post or project if that page's link preview should show it.
 - `tools/lib.js`: shared helpers (local server, local Inter, view list) used by the tools above.
 
 To show previews to Gianluca, send the PNGs with the SendUserFile tool (mobile first).
@@ -111,7 +111,7 @@ Every page is `<!DOCTYPE html>` from `_layouts/default.html`: head (`_includes/h
 - `#credentials`: two `.cred-group`s plus `.personal` (photo and outside-work line).
 - `#writing`: "Latest thinking", the two newest non-archive posts, generated from `_posts`.
 
-**Work** (`work.html`, `<main id="view-work">`): `.page-head` with the animated `#ix` "From one insight to production" panel, then a filter `.seg.work-filter` (counts in `<small>`) and `.work-grid` of `.work-card`s (`data-industry="fs|health|energy|sport|saas"`, `--art` gradient token behind the project's artwork image in `.work-art`, the client's white logo in `.big.logo` with the client name as its alt text, "Request the case study" mailto link). Case studies can later become their own collection of files in the same way as posts.
+**Work** (`work.html`, `<main id="view-work">`): `.page-head` with the animated `#ix` "From one insight to production" panel, then a filter `.seg.work-filter` (counts in `<small>`) and `.work-grid` of `.work-card`s (`data-industry="fs|health|energy|sport|saas"`; in `.work-art`: the `--art` industry colour, the client's white logo in `.big.logo` top left with the client name as its alt text, the project's pictogram in a dark glass `.work-tile` top right, and chips bottom left; "Request the case study" mailto link). Case studies can later become their own collection of files in the same way as posts.
 
 **Blog** (`blog.html`, `<main id="view-blog">`): `.page-head`, then generated from `_posts`: the newest non-archive post as `.post-feature` (its artwork fills `.post-art`), the other non-archive posts in `.writing.post-list`, and posts with `archive: true` under "From the archive".
 
@@ -170,7 +170,10 @@ Every post has one piece of artwork, used three ways: the banner under the post'
 
 A post without `image` still works: it shows no banner or thumbnail, the featured card falls back to the plain gradient, and its link preview uses the portrait card.
 
-**Project artwork** (Work page cards) works the same way: one file per project in `tools/art/<client>.html` (`data-kind="work"`, 1040x400), rendered to `assets/img/work/<client>.webp` and added as the first child of the card's `.work-art` (`<img src="/assets/img/work/<client>.webp" width="1040" height="400" alt="">`). The client name and chips sit on top, so draw on the right (main object between x 600 and 1000, lighter detail only in the middle band, y 140 to 280) and use no words or figures. Draw at full size: `art.css` scales every project drawing to 75%, anchored to the right, so it sits inside the card with room around it. Show only what the card itself says: no client logos, brand colours or numbers that are not already on the card. Any new client still needs Gianluca's confirmation that it is cleared to share.
+**Project pictograms** (Work page cards): each project's key artefact as a simple pictogram, `assets/img/work/<client>.svg` (viewBox 132x88, drawn directly as SVG), shown as `<span class="work-tile glass on-dark" aria-hidden="true"><img src="/assets/img/work/<client>.svg" width="132" height="88" alt=""></span>` inside `.work-art`. The layout, not the image, places it: a 120x80 dark glass tile, top right, its top aligned with the logo, clear of the chips. The rules behind it (chosen by testing several compositions):
+- Reading order on every card: logo first (the brightest thing), pictogram second, chips third. Dark glass keeps the tile calm on every industry colour; light glass took on the colour behind it and outshone the logo.
+- One idea per pictogram, about five shapes, inside a 14-unit inner margin. White for the main shapes, white at about 40% for secondary ones, and exactly one accent for the insight (on-dark tints: cyan #3FD3E3, coral #FF8AA0, amber #FFB070), chosen to contrast with the card's colour.
+- No words or figures, and only what the card itself says: no client logos, brand colours or numbers that are not already on the card. Any new client still needs Gianluca's confirmation that it is cleared to share.
 
 **Client logos** (Work page cards) are single-colour white files in `assets/img/logos/`, shown with `<span class="big logo"><img src="/assets/img/logos/<client>.svg" width=".." height=".." alt="<Client>"></span>` at a height set by eye (about 18px for wide wordmarks up to about 32px for square marks). Sources: NAB, Bupa, AGL and AFL from their English Wikipedia logo files, Westpac from Wikimedia Commons, Generation Life's own white logo from genlife.com.au, and Protecht's reversed logo from protechtgroup.com. Colour versions were turned white with every coloured shape filled white; Bupa and AFL use a knockout (their white lettering becomes see-through). Never recolour, stretch or redraw a logo, and do not add a client logo without Gianluca's confirmation.
 
@@ -184,6 +187,7 @@ Images: photos live in `assets/img/` and are linked with absolute paths (`/asset
 - Segmented filter: `.seg.glass` with buttons `aria-pressed`, plus a `.filter-status` line.
 - Cards: `.work-card`, `.eng` (details), `.post-feature` (with `.post-art.has-img` when the post has artwork), `.writing article` (`.has-thumb` plus `.row-thumb` when the post has artwork), `.next-post`, `.cred-group`.
 - Post banner: `figure.article-hero` (in `_layouts/post.html`).
+- Work card pictogram tile: `.work-tile` (with `.glass.on-dark`), top right of `.work-art`.
 - Tags and chips: `.post-tags` (violet wash), `.tags` (grey), `.chip`, `.chip-g` (glass on art), `.soon`, `.spot-tag`.
 - Post body (`.prose`): `p.lead`, `h2`, `h3`, lists, `.pull` quote, `.stat-strip` (dark dl), `.callout` (dark stat card), `.flow` (step chips with arrows), `.roles` (three cards), `.defs` (definition pairs), `.pairs` (two-column list), `.t-fig`, `.source`, `.archive-note`, `hr`.
 - Photos: `.ph` containers with `--pos` focal point; avatars `.av` with sizes `av-xs`, `av-sm`, `av-md`, `av-lg`.

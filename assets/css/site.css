@@ -464,10 +464,12 @@
   .work-card{display:flex; flex-direction:column; background:#fff; border:1px solid var(--border); border-radius:20px; overflow:hidden; transition:transform .25s ease, box-shadow .25s ease;}
   .work-card:hover{transform:translateY(-3px); box-shadow:0 18px 40px rgba(10,37,64,0.10);}
   .work-art{position:relative; overflow:hidden; height:156px; background:var(--art); display:flex; align-items:flex-end; gap:8px; padding:14px;}
-  .work-art > img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:right center;}
   .work-art .big{position:absolute; left:18px; top:14px; font-size:1.7rem; font-weight:800; letter-spacing:-0.03em; color:#fff;}
   .work-art .big.logo{top:16px; line-height:0;}
   .work-art .big.logo img{display:block; width:auto; filter:drop-shadow(0 2px 10px rgba(0,0,0,0.2));}
+  /* The project's key artefact as a pictogram on dark glass, top right, aligned with the logo. Dark glass keeps it calm on every industry colour, so the logo stays the brightest thing on the card. */
+  .work-art .work-tile{position:absolute; top:16px; right:18px; width:120px; height:80px; border-radius:14px; background:linear-gradient(135deg, rgba(10,37,64,0.55), rgba(10,37,64,0.32)); border-color:rgba(255,255,255,0.2); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px);}
+  .work-tile img{display:block; width:100%; height:100%;}
   .chip-g{font-size:0.74rem; font-weight:700; color:var(--ink); padding:6px 12px; border-radius:999px;}
   .work-art .chip-g, .post-art .chip-g{color:#fff; background:linear-gradient(135deg, rgba(255,255,255,0.24), rgba(255,255,255,0.08)); border-color:rgba(255,255,255,0.32); box-shadow:inset 0 1px 0 rgba(255,255,255,0.4), 0 6px 18px rgba(0,0,0,0.18);}
   .work-art .chip-g::before, .post-art .chip-g::before{opacity:0.35;}
