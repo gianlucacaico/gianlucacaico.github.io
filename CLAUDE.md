@@ -67,6 +67,7 @@ One conversation, one change, one branch, one pull request.
 | `assets/js/site.js` | All interactions (filters, model, tabs, orbit, glass lens, nav) | Yes |
 | `assets/img/` | Site photos as webp: `avatar`, `portrait`, `facilitating`, `personal` | Yes |
 | `assets/img/blog/` | Each post's artwork, made by `tools/art.js`: `<slug>.webp` (banner), `<slug>-sm.webp` (list thumbnail), `<slug>.jpg` (link preview) | Yes |
+| `assets/img/logos/` | White client logos shown on the Work page cards (`<client>.svg`, Protecht as `.png`) | Yes |
 | `assets/img/work/` | Each Work page project's card artwork (`<client>.webp`, 1040x400), made by `tools/art.js` | Yes |
 | `assets/img/share/` | Link preview images for the Work and Blog pages (`work.jpg`, `blog.jpg`), made by `tools/art.js` | Yes |
 | `assets/og-image.jpg` | 1200x630 link preview image (portrait card) for the homepage, and for any page without its own | Yes |
@@ -110,7 +111,7 @@ Every page is `<!DOCTYPE html>` from `_layouts/default.html`: head (`_includes/h
 - `#credentials`: two `.cred-group`s plus `.personal` (photo and outside-work line).
 - `#writing`: "Latest thinking", the two newest non-archive posts, generated from `_posts`.
 
-**Work** (`work.html`, `<main id="view-work">`): `.page-head` with the animated `#ix` "From one insight to production" panel, then a filter `.seg.work-filter` (counts in `<small>`) and `.work-grid` of `.work-card`s (`data-industry="fs|health|energy|sport|saas"`, `--art` gradient token behind the project's artwork image in `.work-art`, "Request the case study" mailto link). Case studies can later become their own collection of files in the same way as posts.
+**Work** (`work.html`, `<main id="view-work">`): `.page-head` with the animated `#ix` "From one insight to production" panel, then a filter `.seg.work-filter` (counts in `<small>`) and `.work-grid` of `.work-card`s (`data-industry="fs|health|energy|sport|saas"`, `--art` gradient token behind the project's artwork image in `.work-art`, the client's white logo in `.big.logo` with the client name as its alt text, "Request the case study" mailto link). Case studies can later become their own collection of files in the same way as posts.
 
 **Blog** (`blog.html`, `<main id="view-blog">`): `.page-head`, then generated from `_posts`: the newest non-archive post as `.post-feature` (its artwork fills `.post-art`), the other non-archive posts in `.writing.post-list`, and posts with `archive: true` under "From the archive".
 
@@ -171,6 +172,8 @@ A post without `image` still works: it shows no banner or thumbnail, the feature
 
 **Project artwork** (Work page cards) works the same way: one file per project in `tools/art/<client>.html` (`data-kind="work"`, 1040x400), rendered to `assets/img/work/<client>.webp` and added as the first child of the card's `.work-art` (`<img src="/assets/img/work/<client>.webp" width="1040" height="400" alt="">`). The client name and chips sit on top, so draw on the right (main object between x 600 and 1000, lighter detail only in the middle band, y 140 to 280) and use no words or figures. Show only what the card itself says: no client logos, brand colours or numbers that are not already on the card. Any new client still needs Gianluca's confirmation that it is cleared to share.
 
+**Client logos** (Work page cards) are single-colour white files in `assets/img/logos/`, shown with `<span class="big logo"><img src="/assets/img/logos/<client>.svg" width=".." height=".." alt="<Client>"></span>` at a height set by eye (about 24px for wide wordmarks up to about 42px for square marks). Sources: NAB, Bupa, AGL and AFL from their English Wikipedia logo files, Westpac from Wikimedia Commons, Generation Life's own white logo from genlife.com.au, and Protecht's reversed logo from protechtgroup.com. Colour versions were turned white with every coloured shape filled white; Bupa and AFL use a knockout (their white lettering becomes see-through). Never recolour, stretch or redraw a logo, and do not add a client logo without Gianluca's confirmation.
+
 Images: photos live in `assets/img/` and are linked with absolute paths (`/assets/img/avatar.webp`). New images go in `assets/img/` as webp; discuss any new image with Gianluca first. Post artwork lives in `assets/img/blog/` and is made with `tools/art.js` (above).
 
 ### Reusable components (use these, do not invent new ones)
@@ -221,5 +224,6 @@ Merged pull requests: https://github.com/gianlucacaico/gianlucacaico.github.io/p
 ## Known content notes (flagged, not changed)
 
 - The Work and Blog page link preview descriptions were new copy in the clean-addresses pull request; Gianluca approved them there.
+- Client logos on the Work page cards were added at Gianluca's request. Not yet confirmed: that each client (or Bound's agreements with them) permits showing its logo on this site. Logo use usually needs more permission than naming a client.
 
 Add anything spotted but not yet confirmed with Gianluca here.
