@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en-AU" class="work">
+<head>
+<meta charset="UTF-8">
+<title>Westpac</title>
+<link rel="stylesheet" href="art.css">
+<style>:root{--art:var(--art-fs);}</style>
+</head>
+<body data-kind="work">
+<!-- Westpac: a design squad inside a national tech simplification programme. Business, consumer, mortgages and cards converge on one simpler platform, and the squad grows from one contributor to five or more. -->
+<div class="canvas">
+  <div class="dots"></div>
+  <div class="glow"></div>
+  <svg class="abs" width="1040" height="400" viewBox="0 0 1040 400" style="left:0; top:0;">
+    <g id="domains"></g>
+    <g class="sh">
+      <path d="M650 256 L800 206 L950 256 L800 306Z" class="gl"/>
+      <path d="M650 210 L800 160 L950 210 L800 260Z" class="gl2"/>
+      <path d="M650 164 L800 114 L950 164 L800 214Z" fill="rgba(255,255,255,0.92)"/>
+    </g>
+    <path d="M700 164 L800 131 L900 164 L800 197Z" fill="none" stroke="#635BFF" stroke-width="3" stroke-opacity="0.55"/>
+    <circle cx="800" cy="164" r="8" fill="#635BFF"/>
+    <g id="squad"></g>
+  </svg>
+  <script>
+    // Four areas (business, consumer, mortgages, cards) converging on one platform.
+    const icons = [
+      '<rect x="-8" y="-4" width="16" height="11" rx="2"/><path d="M-4 -4 v-3 h8 v3"/>',
+      '<circle cy="-4" r="4"/><path d="M-8 8 c0-6 3.5-8 8-8 s8 2 8 8"/>',
+      '<path d="M-9 0 L0 -8 L9 0"/><path d="M-6 -2 V8 H6 V-2"/>',
+      '<rect x="-9" y="-6" width="18" height="12" rx="2"/><path d="M-9 -1 H9"/>',
+    ];
+    document.getElementById('domains').innerHTML = [146, 180, 214, 248].map((y, i) =>
+      `<path d="M440 ${y} C540 ${y}, 580 210, 650 210" fill="none" stroke="rgba(255,255,255,${0.3 + i * 0.06})" stroke-width="3" stroke-linecap="round"/>
+       <g transform="translate(422 ${y})"><circle r="16" class="gl2"/><g transform="scale(1)" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${icons[i]}</g></g>`).join('');
+    // The squad: one contributor, then five or more embedded.
+    document.getElementById('squad').innerHTML = [728, 764, 800, 836, 872].map((x, i) =>
+      `<g transform="translate(${x} 66)"><circle r="16" ${i ? 'class="gl2"' : 'fill="#fff"'}/>
+       <circle cy="-4" r="5" fill="${i ? '#fff' : '#635BFF'}"/><path d="M-9 10 c0-6 4-8.5 9-8.5 s9 2.5 9 8.5" fill="${i ? '#fff' : '#635BFF'}"/></g>`).join('')
+      + '<g transform="translate(908 66)"><circle r="14" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-dasharray="3 4"/><path d="M-6 0 H6 M0 -6 V6" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></g>';
+  </script>
+</div>
+</body>
+</html>

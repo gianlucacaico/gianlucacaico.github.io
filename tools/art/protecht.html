@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en-AU" class="work">
+<head>
+<meta charset="UTF-8">
+<title>Protecht</title>
+<link rel="stylesheet" href="art.css">
+<style>:root{--art:var(--art-saas);}</style>
+</head>
+<body data-kind="work">
+<!-- Protecht: CSAT, CES and SUPR-Q combined with UX and UI heuristics to pinpoint experience gaps, making CX a funded capability. -->
+<div class="canvas">
+  <div class="dots"></div>
+  <div class="glow"></div>
+  <svg class="abs" width="1040" height="400" viewBox="0 0 1040 400" style="left:0; top:0;">
+    <path d="M300 268 C350 262 380 240 420 236 C470 230 500 196 560 172" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="3.5" stroke-linecap="round"/>
+    <circle class="wh" cx="300" cy="268" r="6"/><circle class="wh" cx="420" cy="236" r="6"/><circle cx="560" cy="172" r="9" fill="#EB5D76" stroke="#fff" stroke-width="3"/>
+    <g class="sh"><rect class="gl" x="600" y="46" width="394" height="308" rx="22"/></g>
+    <circle cx="624" cy="68" r="5" fill="rgba(255,255,255,0.5)"/><circle cx="640" cy="68" r="5" fill="rgba(255,255,255,0.35)"/><circle cx="656" cy="68" r="5" fill="rgba(255,255,255,0.25)"/>
+    <rect class="gl" x="614" y="88" width="68" height="252" rx="12"/>
+    <rect class="sk" x="628" y="108" width="40" height="7" rx="3.5"/><rect class="sk2" x="628" y="128" width="32" height="7" rx="3.5"/><rect class="sk2" x="628" y="148" width="36" height="7" rx="3.5"/><rect class="sk2" x="628" y="168" width="28" height="7" rx="3.5"/>
+    <g id="gauges"></g>
+    <g id="rows"></g>
+    <circle cx="936" cy="262" r="34" fill="rgba(255,255,255,0.1)" stroke="#fff" stroke-width="6"/>
+    <path d="M960 286 L984 310" stroke="#fff" stroke-width="9" stroke-linecap="round"/>
+  </svg>
+  <script>
+    // Three survey gauges (CSAT, CES, SUPR-Q), shown without numbers.
+    const arc = (cx, cy, r, f) => { const a = Math.PI * (1 - f); return `M${cx - r} ${cy} A${r} ${r} 0 0 1 ${cx + r * Math.cos(a)} ${cy - r * Math.sin(a)}`; };
+    document.getElementById('gauges').innerHTML = [[742, '#8D87FF', 0.78], [840, '#EB5D76', 0.55], [938, '#12B5CB', 0.68]].map(([cx, c, f]) =>
+      `<rect class="gl2" x="${cx - 44}" y="90" width="88" height="80" rx="14"/>
+       <path d="${arc(cx, 146, 28, 1)}" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="9" stroke-linecap="round"/>
+       <path d="${arc(cx, 146, 28, f)}" fill="none" stroke="${c}" stroke-width="9" stroke-linecap="round"/>`).join('');
+    // Heuristic checklist: one row is the gap.
+    document.getElementById('rows').innerHTML = [190, 226, 262, 298].map((y, i) => i === 2
+      ? `<rect x="700" y="${y - 15}" width="276" height="30" rx="10" fill="rgba(235,93,118,0.22)" stroke="rgba(235,93,118,0.7)"/>
+         <circle cx="716" cy="${y}" r="9" fill="#EB5D76"/><path d="M716 ${y - 4} V${y + 1}" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><circle cx="716" cy="${y + 4.5}" r="1.4" fill="#fff"/>
+         <rect class="sk" x="734" y="${y - 4}" width="120" height="8" rx="4"/>`
+      : `<circle cx="716" cy="${y}" r="9" fill="rgba(255,255,255,0.85)"/><path d="M711.5 ${y} l3 3 l6 -6" fill="none" stroke="#635BFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+         <rect class="sk2" x="734" y="${y - 4}" width="${[150, 120, 0, 136][i]}" height="8" rx="4"/>`).join('');
+  </script>
+</div>
+</body>
+</html>

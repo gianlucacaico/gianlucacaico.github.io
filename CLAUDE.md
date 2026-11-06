@@ -67,13 +67,14 @@ One conversation, one change, one branch, one pull request.
 | `assets/js/site.js` | All interactions (filters, model, tabs, orbit, glass lens, nav) | Yes |
 | `assets/img/` | Site photos as webp: `avatar`, `portrait`, `facilitating`, `personal` | Yes |
 | `assets/img/blog/` | Each post's artwork, made by `tools/art.js`: `<slug>.webp` (banner), `<slug>-sm.webp` (list thumbnail), `<slug>.jpg` (link preview) | Yes |
+| `assets/img/work/` | Each Work page project's card artwork (`<client>.webp`, 1040x400), made by `tools/art.js` | Yes |
 | `assets/img/share/` | Link preview images for the Work and Blog pages (`work.jpg`, `blog.jpg`), made by `tools/art.js` | Yes |
 | `assets/og-image.jpg` | 1200x630 link preview image (portrait card) for the homepage, and for any page without its own | Yes |
 | `CNAME` | `gianlucacaico.com`. Never touch | Used by Pages |
 | `_config.yml` | Site settings: address, timezone, default link preview description, post addresses, sitemap, quote handling, files not to publish | No |
 | `CLAUDE.md` | This manual | No (excluded) |
 | `tools/` | Build, preview, comparison, artwork and health-check scripts | No (excluded) |
-| `tools/art/` | Source of the post and page artwork: one HTML file per image, plus shared `art.css` | No (excluded) |
+| `tools/art/` | Source of the post, project and page artwork: one HTML file per image, plus shared `art.css` | No (excluded) |
 | `.claude/skills/` | Project slash commands | No (dot-folder) |
 
 ## Tools
@@ -87,7 +88,7 @@ Run from the repo root. The tools build the site with GitHub Pages' own Jekyll f
 - `node tools/check-views.js [url | local]`: follows every internal link from the homepage and checks each page (right view, images, no script errors, no em dashes, link preview tags pointing at the page's own address, link preview image loads), every in-page link target, every old `#/` redirect and the 404 page. `local` builds and checks the working copy.
 - `bash tools/build.sh [source] [destination]`: build the site exactly as GitHub Pages does (Jekyll 3.10 via the `github-pages` gem in `tools/Gemfile`, installed to `tools/vendor/`, run from `tools/` so GitHub's standard plugins load, in production mode). Its output matches the live site byte for byte.
 - `node tools/compare.js [--base <git ref>] [--after <folder>] [views...]`: before-and-after proof. Screenshots every view of `main` and of the working copy (or a built folder such as `_site`) at both sizes, full page, and reports any pixel that differs, saving red difference images to `tools/previews/compare/`. Run it for every change meant to leave the look unchanged, and quote its result in the pull request.
-- `node tools/art.js [name...]`: turns the artwork in `tools/art/` into images. A post's file (`tools/art/<slug>.html`, `data-kind="post"`) becomes `assets/img/blog/<slug>.webp`, `-sm.webp` and `.jpg`; a page's file (`data-kind="share"`) becomes `assets/img/share/<name>.jpg`. Re-run it after editing any artwork, and re-run `blog` after adding a post's artwork if the Blog page preview should show it.
+- `node tools/art.js [name...]`: turns the artwork in `tools/art/` into images. A post's file (`tools/art/<slug>.html`, `data-kind="post"`) becomes `assets/img/blog/<slug>.webp`, `-sm.webp` and `.jpg`; a project's file (`data-kind="work"`) becomes `assets/img/work/<name>.webp`; a page's file (`data-kind="share"`) becomes `assets/img/share/<name>.jpg`. Re-run it after editing any artwork, and re-run `blog` or `work` after adding a post's or project's artwork if that page's link preview should show it.
 - `tools/lib.js`: shared helpers (local server, local Inter, view list) used by the tools above.
 
 To show previews to Gianluca, send the PNGs with the SendUserFile tool (mobile first).
@@ -109,7 +110,7 @@ Every page is `<!DOCTYPE html>` from `_layouts/default.html`: head (`_includes/h
 - `#credentials`: two `.cred-group`s plus `.personal` (photo and outside-work line).
 - `#writing`: "Latest thinking", the two newest non-archive posts, generated from `_posts`.
 
-**Work** (`work.html`, `<main id="view-work">`): `.page-head` with the animated `#ix` "From one insight to production" panel, then a filter `.seg.work-filter` (counts in `<small>`) and `.work-grid` of `.work-card`s (`data-industry="fs|health|energy|sport|saas"`, `--art` gradient token, "Request the case study" mailto link). Case studies can later become their own collection of files in the same way as posts.
+**Work** (`work.html`, `<main id="view-work">`): `.page-head` with the animated `#ix` "From one insight to production" panel, then a filter `.seg.work-filter` (counts in `<small>`) and `.work-grid` of `.work-card`s (`data-industry="fs|health|energy|sport|saas"`, `--art` gradient token behind the project's artwork image in `.work-art`, "Request the case study" mailto link). Case studies can later become their own collection of files in the same way as posts.
 
 **Blog** (`blog.html`, `<main id="view-blog">`): `.page-head`, then generated from `_posts`: the newest non-archive post as `.post-feature` (its artwork fills `.post-art`), the other non-archive posts in `.writing.post-list`, and posts with `archive: true` under "From the archive".
 
@@ -167,6 +168,8 @@ Every post has one piece of artwork, used three ways: the banner under the post'
 4. Add `image: <slug>` and `image_alt: "..."` to the post's front matter. Show the artwork to Gianluca with the post previews: it is a new image, so it needs his approval like any copy.
 
 A post without `image` still works: it shows no banner or thumbnail, the featured card falls back to the plain gradient, and its link preview uses the portrait card.
+
+**Project artwork** (Work page cards) works the same way: one file per project in `tools/art/<client>.html` (`data-kind="work"`, 1040x400), rendered to `assets/img/work/<client>.webp` and added as the first child of the card's `.work-art` (`<img src="/assets/img/work/<client>.webp" width="1040" height="400" alt="">`). The client name and chips sit on top, so draw on the right (main object between x 600 and 1000, lighter detail only in the middle band, y 140 to 280) and use no words or figures. Show only what the card itself says: no client logos, brand colours or numbers that are not already on the card. Any new client still needs Gianluca's confirmation that it is cleared to share.
 
 Images: photos live in `assets/img/` and are linked with absolute paths (`/assets/img/avatar.webp`). New images go in `assets/img/` as webp; discuss any new image with Gianluca first. Post artwork lives in `assets/img/blog/` and is made with `tools/art.js` (above).
 
