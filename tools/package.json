@@ -3,6 +3,8 @@
   "private": true,
   "description": "Preview and health-check tools for gianlucacaico.com. Not published to the site.",
   "dependencies": {
-    "@fontsource/inter": "5.1.0"
+    "@fontsource/inter": "5.1.0",
+    "pixelmatch": "5.3.0",
+    "pngjs": "7.0.0"
   }
 }
