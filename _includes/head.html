@@ -1,22 +1,39 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Gianluca Caico | CX &amp; Experience Design Leader</title>
-<meta name="description" content="Melbourne CX and experience design leader, taking strategy through to delivery for Australia’s banks, insurers, energy providers and sporting codes.">
-<link rel="canonical" href="https://gianlucacaico.com/">
-<meta property="og:type" content="website">
+<script>(function(){function go(){var h=location.hash;if(h.indexOf('#/')===0){var p='/'+h.slice(2).replace(/\/+$/,'');if(p==='/blog')p='/blog/';location.replace(p);}}go();window.addEventListener('hashchange',go);})();</script>
+{%- if page.layout == "post" %}
+  {%- assign meta_title = page.short_title | append: " | Gianluca Caico" %}
+  {%- assign share_title = page.title %}
+  {%- assign description = page.summary %}
+  {%- assign og_type = "article" %}
+{%- else %}
+  {%- assign meta_title = page.meta_title | default: site.title %}
+  {%- assign share_title = meta_title %}
+  {%- assign description = page.description | default: site.description %}
+  {%- assign og_type = "website" %}
+{%- endif %}
+{%- assign page_url = page.url | replace: "index.html", "" | replace: ".html", "" | prepend: site.url %}
+<title>{{ meta_title | escape }}</title>
+<meta name="description" content="{{ description | escape }}">
+<link rel="canonical" href="{{ page_url }}">
+<meta property="og:type" content="{{ og_type }}">
 <meta property="og:site_name" content="Gianluca Caico">
 <meta property="og:locale" content="en_AU">
-<meta property="og:url" content="https://gianlucacaico.com/">
-<meta property="og:title" content="Gianluca Caico | CX &amp; Experience Design Leader">
-<meta property="og:description" content="Melbourne CX and experience design leader, taking strategy through to delivery for Australia’s banks, insurers, energy providers and sporting codes.">
+<meta property="og:url" content="{{ page_url }}">
+<meta property="og:title" content="{{ share_title | escape }}">
+<meta property="og:description" content="{{ description | escape }}">
 <meta property="og:image" content="https://gianlucacaico.com/assets/og-image.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Gianluca Caico, CX and experience design leader">
+{%- if page.layout == "post" %}
+<meta property="article:published_time" content="{{ page.date | date: '%Y-%m-%d' }}">
+<meta property="article:author" content="Gianluca Caico">
+{%- endif %}
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Gianluca Caico | CX &amp; Experience Design Leader">
-<meta name="twitter:description" content="Melbourne CX and experience design leader, taking strategy through to delivery for Australia’s banks, insurers, energy providers and sporting codes.">
+<meta name="twitter:title" content="{{ share_title | escape }}">
+<meta name="twitter:description" content="{{ description | escape }}">
 <meta name="twitter:image" content="https://gianlucacaico.com/assets/og-image.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

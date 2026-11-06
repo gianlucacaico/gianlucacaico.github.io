@@ -1,0 +1,46 @@
+---
+layout: default
+---
+{%- comment -%}
+  One blog post. Everything here comes from the post's file in _posts:
+  title, short_title, date, summary, topics, read_time, and optionally
+  archive, author_bio and extra_link. Posts dated 2025 onwards show
+  "Omnia Enterprise" in the byline and bio automatically.
+{%- endcomment -%}
+{%- assign year = page.date | date: "%Y" | plus: 0 %}
+<main id="post-{{ page.slug }}" data-view="post" data-title="{{ page.short_title }} | Gianluca Caico">
+  <article>
+    <header class="article-head">
+      <div class="wrap">
+        <a class="back glass" href="/blog/">&larr; All posts</a>
+        <h1>{{ page.title }}</h1>
+        <p class="article-meta"><span class="av av-sm" aria-hidden="true"><b>GC</b><img data-photo="avatar" src="/assets/img/avatar.webp" alt=""></span><span>{% if year >= 2025 %}Gianluca Caico, Omnia Enterprise &middot; <time datetime="{{ page.date | date: "%Y-%m-%d" }}">{{ page.date | date: "%-d&nbsp;%B&nbsp;%Y" }}</time>{% else %}Gianluca Caico &middot; <time datetime="{{ page.date | date: "%Y-%m-%d" }}">{{ page.date | date: "%-d %B %Y" }}</time>{% endif %} &middot; {{ page.read_time }} min read</span></p>
+        <ul class="post-tags">{% for t in page.topics %}<li>{{ t }}</li>{% endfor %}</ul>
+      </div>
+    </header>
+    <div class="wrap">
+      <div class="prose">
+        {%- if page.archive %}
+        <p class="archive-note">From the archive. First published {{ page.date | date: "%B %Y" }}.</p>
+        {%- endif %}
+{{ content }}
+        <div class="author">
+          <span class="av" aria-hidden="true"><b>GC</b><img data-photo="avatar" src="/assets/img/avatar.webp" alt=""></span>
+          <p>{% if page.author_bio %}{{ page.author_bio }}{% elsif year >= 2025 %}Gianluca Caico is a Lead Experience Designer at Bound, part of Omnia Enterprise within The Omnia Collective, leading CX strategy and transformation work across financial services, health, energy and sport.{% else %}Gianluca Caico is a Lead Experience Designer at Bound, part of The Omnia Collective, leading CX strategy and transformation work across financial services, health, energy and sport.{% endif %}</p>
+        </div>
+        {%- if page.previous %}{% assign np = page.previous %}{% assign np_label = "Next article" %}{% else %}{% assign np = site.posts.first %}{% assign np_label = "Back to the latest" %}{% endif %}
+        <a class="next-post" href="{{ np.url }}">
+          <span class="np-k">{{ np_label }}</span>
+          <span class="np-t">{{ np.title }}</span>
+          <span class="np-m">{{ np.date | date: "%-d %B %Y" }} &middot; {{ np.read_time }} min read</span>
+        </a>
+        <div class="article-foot">
+          <a class="btn-ghost" href="/blog/">&larr; All posts</a>
+          {%- if page.extra_link %}
+          <a class="btn-ghost" href="{{ page.extra_link.url }}">{{ page.extra_link.label }}</a>
+          {%- endif %}
+        </div>
+      </div>
+    </div>
+  </article>
+</main>

@@ -19,7 +19,7 @@ const { execSync } = require('child_process');
 const { chromium } = require('playwright');
 const { PNG } = require('pngjs');
 const pixelmatch = require('pixelmatch');
-const { ROOT, SIZES, build, allViews, serveDir, newContext, openView } = require('./lib');
+const { ROOT, SIZES, build, allViews, modeOf, serveDir, newContext, openView } = require('./lib');
 
 const args = process.argv.slice(2);
 let baseRef = 'origin/main', afterDir = null; const views = [];
@@ -50,10 +50,10 @@ for (let i = 0; i < args.length; i++) {
     for (const t of targets) {
       for (const size of Object.keys(SIZES)) {
         const shots = [];
-        for (const base of [before.url, after.url]) {
+        for (const [base, dir] of [[before.url, beforeDir], [after.url, afterDir]]) {
           const ctx = await newContext(browser, size, 1);
           const page = await ctx.newPage();
-          await openView(page, base, t);
+          await openView(page, base, t, false, modeOf(dir));
           // Stop looping animations (like the pulsing timeline dot) so both shots catch the same frame.
           await page.addStyleTag({ content: '*,*::before,*::after{animation-iteration-count:1 !important;}' });
           await page.waitForTimeout(100);

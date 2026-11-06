@@ -35,7 +35,7 @@ r=$(curl -s -o /dev/null -w '%{http_code} %{content_type}' -m 30 "${img:-$SITE/a
 case "$r" in "200 image/jpeg"*) pass "Link preview image loads ($img)";; *) fail "Link preview image problem: $r";; esac
 
 # 6. Project files are not public
-for f in CLAUDE.md CLAUDE CLAUDE.html _config.yml .gitignore _layouts/default.html _includes/head.html tools/preview.js tools/health.sh tools/build.sh tools/Gemfile tools/package.json .claude/skills/publish/SKILL.md; do
+for f in CLAUDE.md CLAUDE CLAUDE.html _config.yml .gitignore _layouts/default.html _layouts/post.html _includes/head.html _posts/2026-10-15-dynamic-blueprinting.md tools/preview.js tools/health.sh tools/build.sh tools/Gemfile tools/package.json .claude/skills/publish/SKILL.md; do
   code=$(curl -s -o /dev/null -w '%{http_code}' -m 30 "$SITE/$f")
   [ "$code" = "404" ] && pass "Not public: /$f" || fail "/$f is publicly reachable ($code)"
 done
@@ -63,8 +63,12 @@ fi
 n=$(grep -o $'\xe2\x80\x94''\|&mdash;\|&#8212;' "$TMP"/health-home.html | wc -l)
 [ "$n" = "0" ] && pass "No em dashes on the live page" || fail "$n em dash(es) on the live page"
 
-# 10. Every view renders, images load, no script errors
-node tools/check-views.js "$SITE/" && pass "All views render with images and no script errors" || fail "One or more views have problems (see above)"
+# 10. Sitemap for search engines
+r=$(curl -s -o /dev/null -w '%{http_code}' -m 30 "$SITE/sitemap.xml$bust")
+[ "$r" = "200" ] && pass "Sitemap is published (/sitemap.xml)" || warn "No sitemap at /sitemap.xml ($r)"
+
+# 11. Every page renders, with images, link previews and working links; old # addresses redirect
+node tools/check-views.js "$SITE/" && pass "All pages render with images, link previews and working links" || fail "One or more pages have problems (see above)"
 
 echo
 echo "Summary: $fails failed, $warns warnings"

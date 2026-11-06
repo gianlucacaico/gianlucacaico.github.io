@@ -14,7 +14,7 @@ Follow "How changes flow" in CLAUDE.md. Merging the pull request is what puts a 
 3. **Check what is about to ship** with `git fetch origin main && git diff origin/main...<branch>` (or `gh api repos/gianlucacaico/gianlucacaico.github.io/pulls/<number> -H 'Accept: application/vnd.github.diff'`):
    - only the approved change is included (one change per pull request; if anything unrelated is mixed in, stop and ask);
    - `CNAME` is unchanged and the link preview tags in `_includes/head.html` are intact;
-   - no em dashes: `grep -rc $'\xe2\x80\x94' index.html _includes _layouts assets/css assets/js` (the em dash character) finds none, and none in the title or description;
+   - no em dashes: `grep -rl $'\xe2\x80\x94' index.html work.html blog.html 404.html _posts _includes _layouts _config.yml assets/css assets/js` (the em dash character) finds nothing, and none in the title or description;
    - no `.nojekyll` file, and any new non-site file is listed under `exclude:` in `_config.yml`;
    - `tools/node_modules` and `tools/previews` are not included.
    If `main` has moved on and the pull request cannot merge cleanly, rebase the branch onto `origin/main`, re-render previews, and ask for approval again if anything visible changed.
