@@ -1,0 +1,8 @@
+{
+  "name": "site-tools",
+  "private": true,
+  "description": "Preview and health-check tools for gianlucacaico.com. Not published to the site.",
+  "dependencies": {
+    "@fontsource/inter": "5.1.0"
+  }
+}

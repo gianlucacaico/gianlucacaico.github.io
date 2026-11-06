@@ -1,0 +1,11 @@
+# GitHub Pages settings.
+# Everything in this repo is public unless listed here.
+# Folders starting with a dot (like .claude) are already left out.
+# Do not add a .nojekyll file: it switches these exclusions off.
+exclude:
+  - CLAUDE.md
+  - tools/
+  - .gitignore
+  - package.json
+  - package-lock.json
+  - README.md
