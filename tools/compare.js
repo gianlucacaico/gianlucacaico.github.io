@@ -4,7 +4,7 @@
 // Use it to prove a behind-the-scenes change leaves the site looking identical.
 //
 // Usage (from the repo root):
-//   node tools/compare.js                     main on GitHub vs your working copy
+//   node tools/compare.js                     main on GitHub vs your working copy (both built with Jekyll)
 //   node tools/compare.js --base <git ref>    compare against another version
 //   node tools/compare.js --after <folder>    compare against a built folder (e.g. _site)
 //   node tools/compare.js blog home           only some views
@@ -19,10 +19,10 @@ const { execSync } = require('child_process');
 const { chromium } = require('playwright');
 const { PNG } = require('pngjs');
 const pixelmatch = require('pixelmatch');
-const { ROOT, SIZES, allViews, serveDir, newContext, openView } = require('./lib');
+const { ROOT, SIZES, build, allViews, serveDir, newContext, openView } = require('./lib');
 
 const args = process.argv.slice(2);
-let baseRef = 'origin/main', afterDir = ROOT; const views = [];
+let baseRef = 'origin/main', afterDir = null; const views = [];
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--base') baseRef = args[++i];
   else if (args[i] === '--after') afterDir = path.resolve(args[++i]);
@@ -31,9 +31,14 @@ for (let i = 0; i < args.length; i++) {
 
 (async () => {
   // Unpack the "before" version into a temporary folder.
-  const beforeDir = fs.mkdtempSync(path.join(os.tmpdir(), 'site-before-'));
-  execSync(`git -C "${ROOT}" archive ${baseRef} | tar -x -C "${beforeDir}"`);
-  const targets = views.length ? views : allViews(beforeDir);
+  // Both versions are built with GitHub Pages' Jekyll, so we compare what visitors would get.
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'site-compare-'));
+  const beforeSrc = path.join(tmp, 'before-src');
+  fs.mkdirSync(beforeSrc);
+  execSync(`git -C "${ROOT}" archive ${baseRef} | tar -x -C "${beforeSrc}"`);
+  const beforeDir = build(beforeSrc, path.join(tmp, 'before'));
+  if (!afterDir) afterDir = build(ROOT, path.join(tmp, 'after'));
+  const targets = views.length ? views : allViews(beforeSrc);
   const out = path.join(__dirname, 'previews', 'compare');
   fs.rmSync(out, { recursive: true, force: true });
   fs.mkdirSync(out, { recursive: true });
@@ -74,7 +79,7 @@ for (let i = 0; i < args.length; i++) {
   } finally {
     await browser.close();
     before.server.close(); after.server.close();
-    fs.rmSync(beforeDir, { recursive: true, force: true });
+    fs.rmSync(tmp, { recursive: true, force: true });
   }
   console.log(changed ? `\n${changed} screenshot(s) differ.` : '\nIdentical: every view matches at both sizes.');
   process.exit(changed ? 1 : 0);
