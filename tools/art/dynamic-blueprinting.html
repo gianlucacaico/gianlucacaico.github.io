@@ -31,7 +31,7 @@
   .ledger{left:290px; top:476px; width:760px; height:92px; border-radius:18px;}
   .cell{position:absolute; width:9px; height:9px; border-radius:2.5px; background:rgba(255,255,255,0.16);}
   .live{left:150px; top:20px; display:flex; align-items:center; gap:8px; padding:6px 13px 6px 11px;}
-  .live b{width:8px; height:8px; border-radius:50%; background:var(--cyan); box-shadow:0 0 0 4px rgba(18,181,203,0.25);}
+  .live b{width:8px; height:8px; border-radius:50%; background:var(--cyan-bright); box-shadow:0 0 0 4px rgba(18,181,203,0.25);}
   .key{display:flex; flex-direction:column; gap:4px;}
   .key span{display:flex; align-items:center; gap:6px;}
   .key span::before{content:''; width:9px; height:9px; border-radius:2.5px; background:var(--c);}
@@ -110,12 +110,12 @@
   // The ledger of claims: fact, hypothesis, assumption.
   const ledger = document.getElementById('ledger');
   const key = ledger.querySelector('.key');
-  key.innerHTML = '<span style="--c:var(--cyan)">Fact</span><span style="--c:var(--violet)">Hypothesis</span><span style="--c:var(--amber)">Assumption</span>';
+  key.innerHTML = '<span style="--c:var(--cyan-bright)">Fact</span><span style="--c:var(--violet)">Hypothesis</span><span style="--c:var(--amber)">Assumption</span>';
   const cells = [];
   for (let r = 0; r < 5; r++) for (let c = 0; c < 44; c++) {
     const x = 150 + c * 13.2, y = 16 + r * 13;
     const v = rnd();
-    const colour = v < 0.2 ? 'var(--cyan)' : v < 0.31 ? 'var(--violet)' : v < 0.37 ? 'var(--amber)' : '';
+    const colour = v < 0.2 ? 'var(--cyan-bright)' : v < 0.31 ? 'var(--violet)' : v < 0.37 ? 'var(--amber)' : '';
     const el = add(ledger, `<span class="cell" style="left:${x}px; top:${y}px;${colour ? ' background:' + colour : ''}"></span>`);
     if (colour) cells.push([290 + x + 4.5, 476 + y, colour, r, c]);
   }
@@ -129,7 +129,7 @@
   const traces = [['3-0', 0, 'lg'], ['2-1', 5, 'lg'], ['3-2', 17, 'lv'], ['3-3', 28, 'lg'], ['3-4', 39, 'lv']];
   const used = new Set();
   traces.forEach(([k, col, grad]) => {
-    const c = cells.filter((x) => (grad === 'lv' ? x[2] === 'var(--violet)' : x[2] === 'var(--cyan)') && x[3] === 0 && !used.has(x))
+    const c = cells.filter((x) => (grad === 'lv' ? x[2] === 'var(--violet)' : x[2] === 'var(--cyan-bright)') && x[3] === 0 && !used.has(x))
       .sort((a, b) => Math.abs(a[4] - col) - Math.abs(b[4] - col))[0];
     used.add(c);
     const [nx, ny] = [150 + pos[k][0] + 58, 62 + pos[k][1] + 40];

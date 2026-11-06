@@ -6,7 +6,7 @@
    text: the "Featured" label sits there. */
 :root{
   --ink:#0A2540; --paper:#FFFFFF; --panel:#F6F9FC; --muted:#425466; --faint:#8792A2; --muted-on-ink:#A6B4CC;
-  --violet:#635BFF; --violet-deep:#4B44D6; --coral:#EB5D76; --amber:#FFA659; --cyan:#12B5CB; --border:#E3E8EF;
+  --violet:#635BFF; --violet-deep:#4B44D6; --coral:#EB5D76; --amber:#FFA659; --cyan-bright:#12B5CB; --border:#E3E8EF;
   /* Industry colour fields, as on the Work page cards */
   --art-fs:radial-gradient(55% 75% at 20% 25%, rgba(99,91,255,0.95), transparent 70%), radial-gradient(50% 70% at 85% 80%, rgba(18,181,203,0.8), transparent 70%), #0A2540;
   --art-health:radial-gradient(55% 75% at 25% 30%, rgba(235,93,118,0.95), transparent 70%), radial-gradient(50% 70% at 85% 75%, rgba(255,166,89,0.8), transparent 70%), #3B1330;
