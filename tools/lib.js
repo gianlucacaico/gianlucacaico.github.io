@@ -35,8 +35,12 @@ function viewUrl(base, t, mode = 'path', bust = false) {
 // Does a built folder (or the live site) use real page addresses? Checks whether /work exists.
 function modeOf(dir) { return fs.existsSync(path.join(dir, 'work.html')) ? 'path' : 'hash'; }
 async function liveMode(context, base) {
-  const r = await context.request.get(base + 'work', { maxRedirects: 0 }).catch(() => null);
-  return r && r.status() === 200 ? 'path' : 'hash';
+  // Load it in the browser, which goes through the same network route as real page visits.
+  const page = await context.newPage();
+  const r = await page.goto(base + 'work', { waitUntil: 'domcontentloaded' }).catch(() => null);
+  const mode = r && r.status() === 200 && new URL(page.url()).pathname === '/work' ? 'path' : 'hash';
+  await page.close();
+  return mode;
 }
 
 // "home", "#/", "/" -> "#/"; "blog/x" or "#/blog/x" -> "#/blog/x"
