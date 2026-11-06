@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 88" width="132" height="88" fill="none" stroke-linecap="round" stroke-linejoin="round">
-<g stroke="rgba(255,255,255,0.42)" stroke-width="2"><path d="M18 20 C40 20 44 44 62 44"/><path d="M18 36 C38 36 46 44 62 44"/><path d="M18 52 C38 52 46 44 62 44"/><path d="M18 68 C40 68 44 44 62 44"/></g>
-<g fill="rgba(255,255,255,0.9)"><circle cx="18" cy="20" r="3.5"/><circle cx="18" cy="36" r="3.5"/><circle cx="18" cy="52" r="3.5"/><circle cx="18" cy="68" r="3.5"/></g>
-<path d="M62 44 H70" stroke="#FFB070" stroke-width="2.5"/>
-<path d="M70 56 L94 46 L118 56 L94 66Z" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.42)" stroke-width="1.2"/>
-<path d="M70 46 L94 36 L118 46 L94 56Z" fill="rgba(255,255,255,0.26)" stroke="rgba(255,255,255,0.55)" stroke-width="1.2"/>
-<path d="M70 36 L94 26 L118 36 L94 46Z" fill="#fff"/>
-<circle cx="94" cy="36" r="3.5" fill="#FFB070"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 156" width="240" height="156" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<defs><linearGradient id="fade" x1="40" y1="0" x2="112" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity="0.5"/></linearGradient></defs>
+<g stroke="url(#fade)" stroke-width="3"><path d="M40 22 C90 22 96 70 132 70"/><path d="M40 46 C86 46 98 70 132 70"/><path d="M40 70 H132"/><path d="M40 96 C86 96 98 70 132 70"/></g>
+<path d="M132 70 H146" stroke="#FFB070" stroke-width="4"/>
+<path d="M146 92 L196 72 L246 92 L196 112Z" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>
+<path d="M146 74 L196 54 L246 74 L196 94Z" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+<path d="M146 56 L196 36 L246 56 L196 76Z" fill="#fff"/>
+<circle cx="196" cy="56" r="6" fill="#FFB070"/>
 </svg>
