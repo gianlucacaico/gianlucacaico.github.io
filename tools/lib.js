@@ -18,9 +18,7 @@ function allViews(dir = ROOT) {
   const posts = fs.existsSync(path.join(dir, '_posts'))
     ? fs.readdirSync(path.join(dir, '_posts')).filter((f) => /\.(md|html)$/.test(f)).sort().reverse().map((f) => f.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.\w+$/, ''))
     : fs.existsSync(path.join(dir, 'blog')) ? fs.readdirSync(path.join(dir, 'blog')).filter((f) => f.endsWith('.html')).map((f) => f.slice(0, -5)) : null;
-  // Other top-level pages (such as system.html) sit between Work and Blog.
-  const pages = fs.readdirSync(dir).filter((f) => f.endsWith('.html') && !['index.html', '404.html', 'work.html', 'blog.html'].includes(f)).map((f) => f.slice(0, -5));
-  if (posts) return ['home', 'work', ...pages, 'blog', ...posts.map((s) => 'blog/' + s)];
+  if (posts) return ['home', 'work', 'blog', ...posts.map((s) => 'blog/' + s)];
   const html = fs.readFileSync(path.join(dir, 'index.html'), 'utf8');
   return [...html.matchAll(/<main id="([^"]+)" data-view/g)].map((m) =>
     m[1] === 'view-home' ? 'home' : m[1].startsWith('view-') ? m[1].slice(5) : 'blog/' + m[1].replace(/^post-/, ''));
@@ -52,12 +50,10 @@ function toHash(t) {
   return '#/' + h;
 }
 
-// The main id a view should show, e.g. "blog/x" -> "post-x", "system" -> "view-system".
+// The main id a view should show, e.g. "blog/x" -> "post-x".
 function expectedMain(t) {
   const hash = toHash(t);
-  if (hash === '#/') return 'view-home';
-  if (hash.startsWith('#/blog/')) return 'post-' + hash.slice(7);
-  return 'view-' + hash.slice(2);
+  return hash === '#/' ? 'view-home' : hash === '#/work' ? 'view-work' : hash === '#/blog' ? 'view-blog' : 'post-' + hash.slice(7);
 }
 
 // Build a folder with GitHub Pages' Jekyll (tools/build.sh) and return where it was built.
