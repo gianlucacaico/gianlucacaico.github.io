@@ -3,7 +3,8 @@
 // follows every internal link and checks each page: the right view shows, every
 // image loads, there are no script errors, and the link preview tags (title,
 // description, canonical address, Open Graph and Twitter) are present, point
-// at the page's own address, and the preview image loads. It also checks that old "#/" addresses redirect to
+// at the page's own address, and the preview image loads. Links to the design system (a separate site with its
+// own checks) are confirmed to answer but not followed. It also checks that old "#/" addresses redirect to
 // the new ones, that in-page links like #contact have a target, that no page
 // contains an em dash, and that a
 // missing page shows the "page not found" page.
@@ -38,7 +39,7 @@ const { LIVE, build, serveDir, liveMode, expectedMain, allViews } = require('./l
       report(shown === expectedMain(v), hash);
     }
   } else {
-    const seen = new Set(), queue = ['/'], anchors = [];
+    const seen = new Set(), queue = ['/'], anchors = [], sister = new Set();
     while (queue.length) {
       const path = queue.shift();
       if (seen.has(path)) continue;
@@ -78,12 +79,20 @@ const { LIVE, build, serveDir, liveMode, expectedMain, allViews } = require('./l
       report(!issues.length, `${path} (${r.title})${issues.length ? ': ' + issues.join(', ') : ''}`);
       for (const href of r.links) {
         if (href.startsWith('#')) anchors.push([path, href.slice(1)]);
+        else if (href.split('#')[0].replace(/\/?$/, '/') === '/design-system/' || href.startsWith('/design-system/')) sister.add(href.split('#')[0]);
         else if (href.startsWith('/')) {
           const [p, h] = href.split('#');
           if (h) anchors.push([p, h]);
           if (!seen.has(p)) queue.push(p);
         }
       }
+    }
+    // The design system (gianlucacaico.com/design-system) is a separate site with its own checks:
+    // confirm the footer link to it answers, without crawling it. A local build does not include it.
+    for (const href of sister) {
+      if (srv) { console.log(`  -  link to the design system (${href}) not checked locally: it is a separate site`); continue; }
+      const r = await context.request.get(site + href + '?' + bust()).catch(() => null);
+      report(r && r.status() === 200, `link to the design system (${href}) answers${r ? ' (' + r.status() + ')' : ''}`);
     }
     // In-page links (#contact, /#timeline) must point at something that exists.
     const checked = new Set();
