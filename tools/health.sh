@@ -67,7 +67,15 @@ n=$(grep -o $'\xe2\x80\x94''\|&mdash;\|&#8212;' "$TMP"/health-home.html | wc -l)
 r=$(curl -s -o /dev/null -w '%{http_code}' -m 30 "$SITE/sitemap.xml$bust")
 [ "$r" = "200" ] && pass "Sitemap is published (/sitemap.xml)" || warn "No sitemap at /sitemap.xml ($r)"
 
-# 11. Every page renders, with images, link previews and working links; old # addresses redirect
+# 11. Still in step with the design system (gianlucacaico.com/design-system), which checks this site from its side too
+out=$(node tools/drift.js --live 2>&1); code=$?
+case $code in
+  0) pass "In step with the design system ($(echo "$out" | grep -o '[0-9]* site tokens match' | head -1))";;
+  1) warn "Out of step with the design system:"; echo "$out" | grep '^DRIFT' | sed 's/^/        /'; echo "        Ask Gianluca which side is right. If this site is right, update _data/kit.yml in gianlucacaico/design-system.";;
+  *) warn "Could not read the design system's tokens, so the drift check did not run";;
+esac
+
+# 12. Every page renders, with images, link previews and working links; old # addresses redirect
 node tools/check-views.js "$SITE/" && pass "All pages render with images, link previews and working links" || fail "One or more pages have problems (see above)"
 
 echo
