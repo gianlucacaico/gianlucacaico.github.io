@@ -63,7 +63,7 @@ One conversation, one change, one branch, one pull request.
 | `_layouts/post.html` | Post page: header, byline, body, author bio, next-post card | Used in build |
 | `_includes/head.html` | Title, meta description, canonical, Open Graph and Twitter link preview tags (filled per page), old-address redirect, fonts, stylesheet | Used in build |
 | `_includes/nav.html` | Desktop floating nav and mobile tab bar; highlights the current section from the page's `nav:` setting | Used in build |
-| `_includes/footer.html` | Contact footer shared by every page, with the link to the design system in its bottom line | Used in build |
+| `_includes/footer.html` | Footer shared by every page: contact details, a site map (main pages, homepage sections, the two newest posts) and, in its bottom line, the link to the design system | Used in build |
 | `_includes/post-row.html` | One row in a post list (homepage and blog page) | Used in build |
 | `assets/css/site.css` | All styles and design tokens | Yes |
 | `assets/js/site.js` | All interactions (filters, model, tabs, orbit, glass lens, nav) | Yes |
@@ -112,6 +112,8 @@ Every page is `<!DOCTYPE html>` from `_layouts/default.html`: head (`_includes/h
 - `#timeline`: Career timeline (`.tl-row`), Bound engagements in `.bracket` with filter `.seg` and `<details class="eng" data-tags="ai growth platform">` cards, earlier roles in `.tl-more`, `.parallel` freelance row.
 - `#credentials`: two `.cred-group`s plus `.personal` (photo and outside-work line).
 - `#writing`: "Latest thinking", the two newest non-archive posts, generated from `_posts`.
+
+The footer's site map links to `#record`, `#practice`, `#timeline` and `#credentials` by their headings: if a section's id or heading changes, update `_includes/footer.html` too (the page check fails on a link with no target).
 
 **Work** (`work.html`, `<main id="view-work">`): `.page-head` with the animated `#ix` "From one insight to production" panel, then a filter `.seg.work-filter` (counts in `<small>`) and `.work-grid` of `.work-card`s (`data-industry="fs|health|energy|sport|saas"`; in `.work-art`: the `--art` industry colour, the project's pictogram `img.work-pic` filling the right side, the client name as text in `.big` top left, and the industry and year as plain text in `p.work-meta` bottom left; "Request the case study" mailto link). Case studies can later become their own collection of files in the same way as posts.
 
@@ -195,6 +197,7 @@ Images: photos live in `assets/img/` and are linked with absolute paths (`/asset
 - Work card art: `img.work-pic` (cropped pictogram, right side) and `p.work-meta` (industry and year as text, separated by a dot) inside `.work-art`.
 - Tags and chips: `.post-tags` (violet wash), `.tags` (grey), `.chip`, `.chip-g` (glass on art), `.soon`, `.spot-tag`.
 - Post body (`.prose`): `p.lead`, `h2`, `h3`, lists, `.pull` quote, `.stat-strip` (dark dl), `.callout` (dark stat card), `.flow` (step chips with arrows), `.roles` (three cards), `.defs` (definition pairs), `.pairs` (two-column list), `.t-fig`, `.source`, `.archive-note`, `hr`.
+- Footer site map: `nav.foot-map` (three columns of links under small grey labels, two columns on phones), in `_includes/footer.html`.
 - Photos: `.ph` containers with `--pos` focal point; avatars `.av` with sizes `av-xs`, `av-sm`, `av-md`, `av-lg`.
 - Dark sections set `data-tone="dark"` so the floating nav switches to light text over them.
 

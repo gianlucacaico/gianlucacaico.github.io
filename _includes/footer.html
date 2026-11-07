@@ -9,6 +9,20 @@
       <a href="tel:+61412106202">+61 412 106 202</a>
       <a href="https://www.linkedin.com/in/gianlucacaico" target="_blank" rel="noopener">LinkedIn</a>
     </div>
+    <nav class="foot-map" aria-label="Site map">
+      <div>
+        <p>Explore</p>
+        <ul><li><a href="/">Home</a></li><li><a href="/work">Work</a></li><li><a href="/blog/">Blog</a></li></ul>
+      </div>
+      <div>
+        <p>On the homepage</p>
+        <ul><li><a href="/#record">Outcomes I've driven</a></li><li><a href="/#practice">What I help with</a></li><li><a href="/#timeline">Career timeline</a></li><li><a href="/#credentials">Credentials</a></li></ul>
+      </div>
+      <div>
+        <p>Latest thinking</p>
+        <ul>{%- assign recent = site.posts | where_exp: "p", "p.archive != true" %}{% for post in recent limit: 2 %}<li><a href="{{ post.url }}">{{ post.short_title }}</a></li>{% endfor %}</ul>
+      </div>
+    </nav>
     <div class="fine">
       <span>Gianluca Caico &middot; Melbourne, Australia</span>
       <span><a href="/design-system/">Design system</a> &middot; &copy; 2026</span>
