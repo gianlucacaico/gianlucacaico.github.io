@@ -4,7 +4,8 @@ layout: default
 {%- comment -%}
   One blog post. Everything here comes from the post's file in _posts:
   title, short_title, date, summary, topics, read_time, and optionally
-  image and image_alt (artwork in assets/img/blog), archive, author_bio and extra_link. Posts dated 2025 onwards show
+  image and image_alt (artwork in assets/img/blog), archive, author_bio and extra_link. The breadcrumb
+  trail at the top (Home / Blog / short_title) also goes to search engines as breadcrumb data. Posts dated 2025 onwards show
   "Omnia Enterprise" in the byline and bio automatically.
 {%- endcomment -%}
 {%- assign year = page.date | date: "%Y" | plus: 0 %}
@@ -12,7 +13,8 @@ layout: default
   <article>
     <header class="article-head">
       <div class="wrap">
-        <a class="back glass" href="/blog/">&larr; All posts</a>
+        <nav class="crumbs back glass" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/blog/">Blog</a></li><li aria-current="page">{{ page.short_title }}</li></ol></nav>
+        <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"{{ site.url }}/"},{"@type":"ListItem","position":2,"name":"Blog","item":"{{ site.url }}/blog/"},{"@type":"ListItem","position":3,"name":{{ page.short_title | jsonify }}}]}</script>
         <h1>{{ page.title }}</h1>
         <p class="article-meta"><span class="av av-sm" aria-hidden="true"><b>GC</b><img data-photo="avatar" src="/assets/img/avatar.webp" alt=""></span><span>{% if year >= 2025 %}Gianluca Caico, Omnia Enterprise &middot; <time datetime="{{ page.date | date: "%Y-%m-%d" }}">{{ page.date | date: "%-d&nbsp;%B&nbsp;%Y" }}</time>{% else %}Gianluca Caico &middot; <time datetime="{{ page.date | date: "%Y-%m-%d" }}">{{ page.date | date: "%-d %B %Y" }}</time>{% endif %} &middot; {{ page.read_time }} min read</span></p>
         <ul class="post-tags">{% for t in page.topics %}<li>{{ t }}</li>{% endfor %}</ul>

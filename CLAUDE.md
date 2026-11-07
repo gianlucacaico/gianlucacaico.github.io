@@ -117,7 +117,7 @@ Every page is `<!DOCTYPE html>` from `_layouts/default.html`: head (`_includes/h
 
 **Blog** (`blog.html`, `<main id="view-blog">`): `.page-head`, then generated from `_posts`: the newest non-archive post as `.post-feature` (its artwork fills `.post-art`), the other non-archive posts in `.writing.post-list`, and posts with `archive: true` under "From the archive".
 
-**Posts** (`_posts/*.md` with `_layouts/post.html`, `<main id="post-<slug>">`): `header.article-head` (back link, h1, byline, date, read time, topics, then the post's artwork as a `figure.article-hero` banner), `.prose` body, `.author` bio, `.next-post` card, `.article-foot` buttons.
+**Posts** (`_posts/*.md` with `_layouts/post.html`, `<main id="post-<slug>">`): `header.article-head` (breadcrumb trail `nav.crumbs`: Home / Blog / the post's `short_title`, also given to search engines as breadcrumb data; h1, byline, date, read time, topics, then the post's artwork as a `figure.article-hero` banner), `.prose` body, `.author` bio, `.next-post` card, `.article-foot` buttons.
 
 **Link previews**: `_includes/head.html` fills the title, description, canonical address, Open Graph and Twitter tags for each page. Home uses the site description in `_config.yml`; Work and Blog set `description` in their front matter; posts use their `title` (as og:title), `short_title` (browser tab) and `summary` (description), with `og:type` article. Preview images: each post uses its own artwork (`assets/img/blog/<image>.jpg`, from the post's `image` and `image_alt`); Work and Blog use `share_image` and `share_alt` from their front matter (`assets/img/share/`); the homepage, 404 and anything else use the portrait card `assets/og-image.jpg`.
 
@@ -130,7 +130,7 @@ Create `_posts/YYYY-MM-DD-<slug>.md`. The blog page, homepage "Latest thinking",
 ```markdown
 ---
 title: "Full post title"
-short_title: "Short title for the browser tab"
+short_title: "Short title for the browser tab and the breadcrumb trail"
 date: 2026-11-20
 summary: "One or two sentences for cards and link previews."
 topics: [Topic one, Topic two, Topic three]
@@ -191,6 +191,7 @@ Images: photos live in `assets/img/` and are linked with absolute paths (`/asset
 - Segmented filter: `.seg.glass` with buttons `aria-pressed`, plus a `.filter-status` line. It scrolls sideways on phones, so it draws its glass on itself rather than with the `.glass` layers, which would scroll away and leave a hard edge.
 - Cards: `.work-card`, `.eng` (details), `.post-feature` (with `.post-art.has-img` when the post has artwork), `.writing article` (`.has-thumb` plus `.row-thumb` when the post has artwork), `.next-post`, `.cred-group`.
 - Post banner: `figure.article-hero` (in `_layouts/post.html`).
+- Breadcrumb trail: `nav.crumbs.back.glass` with an `ol` of links ending in the current page (`aria-current="page"`), shortened with an ellipsis if it does not fit. On posts only (Home / Blog / short title); the design system's kit has the same component.
 - Work card art: `img.work-pic` (cropped pictogram, right side) and `p.work-meta` (industry and year as text, separated by a dot) inside `.work-art`.
 - Tags and chips: `.post-tags` (violet wash), `.tags` (grey), `.chip`, `.chip-g` (glass on art), `.soon`, `.spot-tag`.
 - Post body (`.prose`): `p.lead`, `h2`, `h3`, lists, `.pull` quote, `.stat-strip` (dark dl), `.callout` (dark stat card), `.flow` (step chips with arrows), `.roles` (three cards), `.defs` (definition pairs), `.pairs` (two-column list), `.t-fig`, `.source`, `.archive-note`, `hr`.
