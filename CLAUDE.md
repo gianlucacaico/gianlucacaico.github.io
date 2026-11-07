@@ -77,7 +77,7 @@ One conversation, one change, one branch, one pull request.
 | `CLAUDE.md` | This manual | No (excluded) |
 | `tools/` | Build, preview, comparison, artwork and health-check scripts | No (excluded) |
 | `tools/art/` | Source of the post and page artwork: one HTML file per image, plus shared `art.css` | No (excluded) |
-| `.claude/skills/` | Project slash commands | No (dot-folder) |
+| `.claude/skills/` | Project slash commands: `/edit`, `/new-post`, `/preview`, `/health`, `/publish`, `/navigate` | No (dot-folder) |
 
 ## Tools
 
@@ -92,6 +92,7 @@ Run from the repo root. The tools build the site with GitHub Pages' own Jekyll f
 - `node tools/compare.js [--base <git ref>] [--after <folder>] [views...]`: before-and-after proof. Screenshots every view of `main` and of the working copy (or a built folder such as `_site`) at both sizes, full page, and reports any pixel that differs, saving red difference images to `tools/previews/compare/`. Run it for every change meant to leave the look unchanged, and quote its result in the pull request.
 - `node tools/art.js [name...]`: turns the artwork in `tools/art/` into images. A post's file (`tools/art/<slug>.html`, `data-kind="post"`) becomes `assets/img/blog/<slug>.webp`, `-sm.webp` and `.jpg`; a page's file (`data-kind="share"`) becomes `assets/img/share/<name>.jpg`. Re-run it after editing any artwork, and re-run `blog` or `work` after adding a post or project if that page's link preview should show it.
 - `node tools/drift.js [--live] [--tokens <file or URL>]`: compares this site's `:root` tokens and `tools/art/art.css` with the design system's tokens at gianlucacaico.com/design-system/tokens.json. Prints DRIFT for any token that differs or exists on one side only (exit code 1), and INFO for colours in the stylesheet or pictograms that are not tokens yet. `--live` checks the live stylesheet; `--tokens` compares with another tokens file, such as a design system branch's.
+- `node tools/nav-map.js [--ds <folder>] [--live] [--shots]`: the navigation map. Crawls this site and the design system as one space (the design system under `/design-system/`, live by default or a local checkout with `--ds ../design-system`), from both front doors and the sitemap, at 390px and 1280px. Checks every page against the "Navigation standard" below and prints PASS / WARN / FAIL / INFO; FAIL (exit code 1) means a broken link, an in-page link with no target, or a page with no way home. Saves the full map to `tools/previews/nav/map.json` and, with `--shots`, the top and end of every page to `tools/previews/nav/shots/`. The first step of `/navigate`.
 - `tools/lib.js`: shared helpers (local server, local Inter, view list) used by the tools above.
 
 To show previews to Gianluca, send the PNGs with the SendUserFile tool (mobile first).
@@ -122,6 +123,15 @@ Every page is `<!DOCTYPE html>` from `_layouts/default.html`: head (`_includes/h
 **Link previews**: `_includes/head.html` fills the title, description, canonical address, Open Graph and Twitter tags for each page. Home uses the site description in `_config.yml`; Work and Blog set `description` in their front matter; posts use their `title` (as og:title), `short_title` (browser tab) and `summary` (description), with `og:type` article. Preview images: each post uses its own artwork (`assets/img/blog/<image>.jpg`, from the post's `image` and `image_alt`); Work and Blog use `share_image` and `share_alt` from their front matter (`assets/img/share/`); the homepage, 404 and anything else use the portrait card `assets/og-image.jpg`.
 
 **Navigation**: real links (`/`, `/work`, `/blog/`, `#contact`). Each page sets `nav: home|work|blog` in its front matter so the nav highlights the right tab (posts get `nav: blog` automatically). Links to homepage sections from other pages use `/#timeline`, `/#practice`.
+
+### Navigation standard
+
+What every page on both sites should do. `node tools/nav-map.js` checks it and `/navigate` (the navigation orchestrator) reviews it: map, heuristic review, clean-up, then drafted proposals such as breadcrumbs and footer site maps, each shown for approval and made as its own change.
+- **Where am I?** The menu marks the current page (`aria-current="page"`) at both sizes. Every page has its own title, and its canonical address is the address links use.
+- **Where can I go?** Every page offers a next step beyond the menu (no dead ends), contact is one tap away on this site, and each site's main pages are within two taps.
+- **How do I get back?** Every page links home, and pages two levels down (posts, the design system's inner pages) link to their parent.
+- **Across the two sites:** the design system links back here (its header and footer). This site does not link to the design system (decision, November 2026); changing that is Gianluca's call.
+- **Labels and tap targets:** link text says where it goes, the same place keeps the same name, and tap targets on a phone are at least 24px each way (links inside a sentence excepted).
 
 ### Adding a blog post (one file)
 
@@ -233,5 +243,7 @@ Merged pull requests: https://github.com/gianlucacaico/gianlucacaico.github.io/p
 
 - The Work and Blog page link preview descriptions were new copy in the clean-addresses pull request; Gianluca approved them there.
 - Client logos were tried on the Work page cards and replaced with client names as text: there is no formal permission from the clients to show their logos.
+
+- First navigation sweep (November 2026), awaiting Gianluca's decisions: a breadcrumb trail on posts (Home / Blog / short title) in place of the top "All posts" pill, with breadcrumb data for search results; a footer site map on every page; small tap targets ("All posts" on the homepage is 22px tall). In the design system: the Workflows page never marks itself in the menu and its canonical address ends in `.html`; a matching breadcrumb trail and footer site map; small tap targets in "Follow one change". Drafts live only in the review conversation until approved.
 
 Add anything spotted but not yet confirmed with Gianluca here.
