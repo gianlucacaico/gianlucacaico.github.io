@@ -512,6 +512,17 @@
   /* ---------- Article ---------- */
   .article-head{padding:150px 0 12px;}
   .back{display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:999px; font-size:0.88rem; font-weight:600; color:var(--violet-deep); text-decoration:none;}
+  .crumbs{max-width:100%;}
+  .crumbs ol{display:flex; align-items:center; min-width:0; margin:0; padding:0; list-style:none;}
+  .crumbs li{flex:0 0 auto; white-space:nowrap;}
+  .crumbs li + li::before{content:'/'; margin:0 8px; color:var(--faint); font-weight:400;}
+  .crumbs a{display:inline-block; padding:8px 0; margin:-8px 0; color:var(--violet-deep); text-decoration:none;}
+  .crumbs a:hover, .crumbs a:focus-visible{text-decoration:underline; text-underline-offset:3px;}
+  .crumbs [aria-current]{flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; color:var(--muted); font-weight:500;}
+  @media (max-width:520px){
+    .crumbs{padding:8px 14px; font-size:0.82rem;}
+    .crumbs li + li::before{margin:0 6px;}
+  }
   .article-head h1{margin-top:24px; max-width:880px; font-size:clamp(1.9rem, 4.2vw, 3rem); line-height:1.12;}
   .article-meta{margin:18px 0 0; font-size:0.9rem; color:var(--muted);}
   .article-hero{margin:36px 0 12px; overflow:hidden; border-radius:20px; background:var(--ink); box-shadow:0 24px 50px rgba(10,37,64,0.14);}
