@@ -281,8 +281,18 @@ function readPage() {
   // Across the two sites
   const cross = (from, to) => paths.filter((p) => spaceOf(p) === from).flatMap((p) => pages[p].sizes.desktop.links.filter((l) => l.kind === 'internal' && pages[l.to] && spaceOf(l.to) === to).map((l) => ({ from: p, to: l.to, label: l.label, region: l.region })));
   const s2d = cross('site', 'ds'), d2s = cross('ds', 'site');
-  add(d2s.length ? 'PASS' : 'WARN', G.across, `Design system to main site: ${d2s.length} link(s)${d2s.length ? ' (' + [...new Set(d2s.map((x) => `"${x.label}" in the ${x.region}`))].join(', ') + ')' : ''}`);
-  add('INFO', G.across, `Main site to design system: ${s2d.length} link(s). None is the logged decision ("no links from the main site"), so any change here is Gianluca's call`);
+  const where2 = (xs) => (xs.length ? ' (' + [...new Set(xs.map((x) => `"${x.label}" in the ${x.region}`))].join(', ') + ')' : '');
+  add('INFO', G.across, `Main site to design system: ${s2d.length} link(s)${where2(s2d)}`);
+  add('INFO', G.across, `Design system to main site: ${d2s.length} link(s)${where2(d2s)}`);
+  // Each site's footer links to the other (decision, November 2026). Pages with no footer at all are noted, not warned.
+  for (const [from, to, name, other] of [['site', 'ds', 'Main site', 'the design system'], ['ds', 'site', 'Design system', 'gianlucacaico.com']]) {
+    const own = paths.filter((p) => pages[p].space === from && p !== '/404');
+    const footless = own.filter((p) => !pages[p].sizes.desktop.links.some((l) => l.region === 'footer'));
+    const without = own.filter((p) => !footless.includes(p) && !Object.keys(SIZES).every((size) => pages[p].sizes[size].links.some((l) => l.visible && l.region === 'footer' && l.kind === 'internal' && pages[l.to] && spaceOf(l.to) === to)));
+    if (without.length) add('WARN', G.across, `${name}: the footer does not link to ${other} on ${without.join(', ')}`);
+    else add('PASS', G.across, `${name}: every footer links to ${other}`);
+    if (footless.length) add('INFO', G.across, `${name}: ${footless.join(', ')} has no footer`);
+  }
 
   // Key journeys, in taps at phone size
   const tops = { site: ['/', '/work', '/blog/'], ds: [DS, DS + 'workflows', DS + 'demo'] };

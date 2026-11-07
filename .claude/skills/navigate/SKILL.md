@@ -22,6 +22,7 @@ Look at the screenshots, phone first, and walk these journeys:
 - **Shared link:** land on a post from LinkedIn, read it, go to the next post, then Work or contact.
 - **Hiring or buying:** homepage, career timeline, credentials, contact.
 - **Design system visitor:** land on `/design-system/workflows` from a link, work out where it sits, reach gianlucacaico.com.
+- **Between the sites:** from any page of gianlucacaico.com, find the design system through the footer, and come back the same way.
 - **Lost:** a missing address, the "page not found" page, back on track.
 
 Score each finding against these heuristics (Nielsen's ten, applied to navigation), with a severity: **3** blocks or misleads, **2** slows down or confuses, **1** polish.
@@ -47,7 +48,7 @@ Check the design system's decision log (`_data/decisions.yml` in gianlucacaico/d
 
 - **Breadcrumbs:** only on pages two levels down or in the other site, where they add something the menu does not. One component on both sites, plus breadcrumb data for search results.
 - **Footer site map:** the space's main pages, the homepage sections by their headings, and the newest posts, filled in automatically.
-- **Cross-site links:** the design system always links back to gianlucacaico.com. A link from the main site to the design system needs Gianluca's explicit approval.
+- **Cross-site links:** each site's footer links to the other (decision, November 2026). A link between them anywhere else needs Gianluca's explicit approval.
 - **Anything else** the review turns up (a sticky menu on a long page, a clearer 404), as long as it reuses existing components and tokens.
 
 Draft in a throwaway copy, never on a branch that is up for review: `git worktree add --detach <scratchpad>/nav-mock`, and the same for the design system. Build both, then render each proposal as Current and Proposed, phone and desktop. Save each repo's draft as a patch file so an approved proposal can be applied as is.
@@ -68,7 +69,7 @@ Say: "Nothing has changed on either site. Tell me which of these to make." On ap
 ## Guardrails
 
 - Never publishes, merges or pushes to `main`. `/publish` does that, after approval.
-- Never adds a link from the main site to the design system, or a page or folder called `design-system` here, without Gianluca's explicit approval.
+- Never adds a link between the two sites outside their footers, or a page or folder called `design-system` here, without Gianluca's explicit approval.
 - Never touches `CNAME`, the link preview tags in `_includes/head.html`, or anything to do with DNS or email.
 - Reuses existing components and tokens; labels reuse existing headings. Australian English, no em dashes.
 - Flags rather than fixes anything outside navigation it happens to notice, in "Known content notes".

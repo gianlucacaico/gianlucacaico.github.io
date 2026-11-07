@@ -130,7 +130,7 @@ What every page on both sites should do. `node tools/nav-map.js` checks it and `
 - **Where am I?** The menu marks the current page (`aria-current="page"`) at both sizes. Every page has its own title, and its canonical address is the address links use.
 - **Where can I go?** Every page offers a next step beyond the menu (no dead ends), contact is one tap away on this site, and each site's main pages are within two taps.
 - **How do I get back?** Every page links home, and pages two levels down (posts, the design system's inner pages) link to their parent.
-- **Across the two sites:** the design system links back here (its header and footer). This site does not link to the design system (decision, November 2026); changing that is Gianluca's call.
+- **Across the two sites:** each site's footer links to the other (decision, November 2026), and the design system's header also links here. A link between them anywhere else is Gianluca's call.
 - **Labels and tap targets:** link text says where it goes, the same place keeps the same name, and tap targets on a phone are at least 24px each way (links inside a sentence excepted).
 
 ### Adding a blog post (one file)
