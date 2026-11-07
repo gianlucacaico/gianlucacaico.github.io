@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<title>Dynamic blueprinting</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="art.css">
+<style>
+  /* A service blueprint rendered from a live evidence layer: lanes of steps above,
+     a ledger of claims below, and lineage lines tracing steps back to their claims. */
+  .mesh{background:
+    radial-gradient(38% 50% at 18% 22%, rgba(99,91,255,0.85), transparent 70%),
+    radial-gradient(36% 46% at 88% 86%, rgba(18,181,203,0.7), transparent 70%),
+    radial-gradient(30% 40% at 70% 10%, rgba(99,91,255,0.35), transparent 70%), #0A2540;}
+  .board{left:150px; top:62px; width:900px; height:388px; border-radius:20px;}
+  .stage{position:absolute; top:20px; width:150px; text-align:center;}
+  .lane-name{position:absolute; left:22px; width:110px;}
+  .sep{position:absolute; left:20px; right:20px; height:0; border-top:1.5px dashed rgba(255,255,255,0.18);}
+  .node{position:absolute; width:116px; height:40px; border-radius:11px; padding:9px 12px;
+    background:linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.09)); border:1px solid rgba(255,255,255,0.28);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.35), 0 8px 18px rgba(0,0,0,0.18);}
+  .node i{display:block; height:6px; border-radius:3px; background:rgba(255,255,255,0.7);}
+  .node i + i{margin-top:6px; width:60%; background:rgba(255,255,255,0.32);}
+  .node.hot{border-color:rgba(235,93,118,0.9); box-shadow:inset 0 1px 0 rgba(255,255,255,0.35), 0 0 0 4px rgba(235,93,118,0.18), 0 8px 18px rgba(0,0,0,0.18);}
+  .node.agent{border-color:rgba(255,166,89,0.95); box-shadow:inset 0 1px 0 rgba(255,255,255,0.35), 0 0 0 4px rgba(255,166,89,0.16), 0 8px 18px rgba(0,0,0,0.18);}
+  .node.new{background:rgba(99,91,255,0.16); border:1.5px dashed rgba(170,165,255,0.95); box-shadow:none;}
+  .node.solid{background:#fff; border-color:#fff;}
+  .node.solid i{background:var(--violet);}
+  .node.solid i + i{background:rgba(10,37,64,0.25);}
+    .tag{position:absolute; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:700; letter-spacing:0.01em; white-space:nowrap;}
+  .ledger{left:290px; top:476px; width:760px; height:92px; border-radius:18px;}
+  .cell{position:absolute; width:9px; height:9px; border-radius:2.5px; background:rgba(255,255,255,0.16);}
+  .live{left:150px; top:20px; display:flex; align-items:center; gap:8px; padding:6px 13px 6px 11px;}
+  .live b{width:8px; height:8px; border-radius:50%; background:var(--cyan-bright); box-shadow:0 0 0 4px rgba(18,181,203,0.25);}
+  .key{display:flex; flex-direction:column; gap:4px;}
+  .key span{display:flex; align-items:center; gap:6px;}
+  .key span::before{content:''; width:9px; height:9px; border-radius:2.5px; background:var(--c);}
+</style>
+</head>
+<body data-kind="post">
+<div class="canvas">
+  <div class="mesh"></div>
+  <div class="dots"></div>
+
+  <div class="g board" id="board"></div>
+  <div class="g ledger" id="ledger">
+    <span class="abs lbl" style="left:22px; top:14px;">Evidence layer</span>
+    <span class="abs lbl-s key" style="left:22px; top:36px;"></span>
+  </div>
+  <svg class="abs" id="lineage" width="1200" height="630" style="left:0; top:0;"></svg>
+</div>
+<script>
+  // Seeded random so the artwork renders the same every time.
+  let s = 7; const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
+  const board = document.getElementById('board');
+  const add = (parent, html) => { parent.insertAdjacentHTML('beforeend', html); return parent.lastElementChild; };
+
+  const COL0 = 140, COLW = 150, TOP = 58, ROWH = 80;
+  ['Apply', 'Verify', 'Assess', 'Approve', 'Onboard'].forEach((t, i) =>
+    add(board, `<span class="stage lbl-s" style="left:${COL0 + i * COLW}px">${t}</span>`));
+  ['Customer', 'Frontstage', 'Backstage', 'Systems'].forEach((t, r) => {
+    add(board, `<span class="lane-name lbl" style="top:${TOP + r * ROWH + 30}px">${t}</span>`);
+    if (r) add(board, `<div class="sep" style="top:${TOP + r * ROWH}px"></div>`);
+  });
+
+  // [row, col, kind]
+  const nodes = [
+    [0,0,''],[0,1,''],[0,3,''],[0,4,'solid'],
+    [1,0,''],[1,1,''],[1,2,''],[1,4,''],
+    [2,1,'hot'],[2,2,'agent'],[2,3,''],[2,4,'new'],
+    [3,0,''],[3,2,''],[3,3,''],[3,4,''],
+  ];
+  const pos = {};
+  nodes.forEach(([r, c, k]) => {
+    const x = COL0 + c * COLW + 17, y = TOP + r * ROWH + 20;
+    pos[r + '-' + c] = [x, y];
+    const n = add(board, `<div class="node ${k}" style="left:${x}px; top:${y}px"><i></i><i></i></div>`);
+  });
+  // Status chips sit on the top edge of their step.
+  const chip = (k, text, bg, fg, bd) => add(board, `<span class="tag" style="left:${pos[k][0] - 6}px; top:${pos[k][1] - 13}px; background:${bg}; color:${fg}; border:1px solid ${bd}">${text}</span>`);
+  chip('2-1', 'Re-keyed', '#5A2440', '#FFC2CC', 'rgba(235,93,118,0.8)');
+  chip('2-2', 'Agent', '#5A3A2A', '#FFD6B0', 'rgba(255,166,89,0.85)');
+  chip('2-4', 'Proposed', '#2E2A80', '#DCD9FF', 'rgba(170,165,255,0.85)');
+
+  // Flow arrows between steps in a lane, and hand-offs between lanes.
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const flow = document.createElementNS(svgNS, 'svg');
+  flow.setAttribute('width', 900); flow.setAttribute('height', 388);
+  flow.style.cssText = 'position:absolute; left:0; top:0; overflow:visible; z-index:-1';
+  board.appendChild(flow);
+  const line = (svg, d, stroke, w, dash) => {
+    const p = document.createElementNS(svgNS, 'path');
+    p.setAttribute('d', d); p.setAttribute('fill', 'none'); p.setAttribute('stroke', stroke); p.setAttribute('stroke-width', w);
+    p.setAttribute('stroke-linecap', 'round'); if (dash) p.setAttribute('stroke-dasharray', dash);
+    svg.appendChild(p); return p;
+  };
+  const right = (k) => [pos[k][0] + 116, pos[k][1] + 20], left = (k) => [pos[k][0], pos[k][1] + 20];
+  const bottom = (k) => [pos[k][0] + 58, pos[k][1] + 40], topOf = (k) => [pos[k][0] + 58, pos[k][1]];
+  [['0-0','0-1'],['1-0','1-1'],['1-1','1-2'],['2-1','2-2'],['2-2','2-3'],['3-2','3-3'],['3-3','3-4'],['0-3','0-4']].forEach(([a, b]) => {
+    const [x1, y1] = right(a), [x2, y2] = left(b);
+    line(flow, `M${x1} ${y1} H${x2}`, 'rgba(255,255,255,0.35)', 1.5);
+  });
+  line(flow, `M${right('2-3')[0]} ${right('2-3')[1]} H${left('2-4')[0]}`, 'rgba(170,165,255,0.8)', 1.5, '4 5');
+  [['0-0','1-0'],['1-1','2-1'],['2-2','3-2'],['0-1','1-1'],['2-3','3-3'],['1-4','0-4'],['3-0','1-0']].forEach(([a, b]) => {
+    const up = pos[a][1] > pos[b][1];
+    const [x1, y1] = up ? topOf(a) : bottom(a), [x2, y2] = up ? bottom(b) : topOf(b);
+    line(flow, `M${x1} ${y1} V${y2}`, 'rgba(255,255,255,0.22)', 1.5);
+  });
+
+  // The ledger of claims: fact, hypothesis, assumption.
+  const ledger = document.getElementById('ledger');
+  const key = ledger.querySelector('.key');
+  key.innerHTML = '<span style="--c:var(--cyan-bright)">Fact</span><span style="--c:var(--violet)">Hypothesis</span><span style="--c:var(--amber)">Assumption</span>';
+  const cells = [];
+  for (let r = 0; r < 5; r++) for (let c = 0; c < 44; c++) {
+    const x = 150 + c * 13.2, y = 16 + r * 13;
+    const v = rnd();
+    const colour = v < 0.2 ? 'var(--cyan-bright)' : v < 0.31 ? 'var(--violet)' : v < 0.37 ? 'var(--amber)' : '';
+    const el = add(ledger, `<span class="cell" style="left:${x}px; top:${y}px;${colour ? ' background:' + colour : ''}"></span>`);
+    if (colour) cells.push([290 + x + 4.5, 476 + y, colour, r, c]);
+  }
+
+  // Lineage: every step resolves to the claims underneath it.
+  const svg = document.getElementById('lineage');
+  const defs = document.createElementNS(svgNS, 'defs');
+  defs.innerHTML = `<linearGradient id="lg" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#12B5CB" stop-opacity="0.95"/><stop offset="1" stop-color="#12B5CB" stop-opacity="0.15"/></linearGradient>
+                    <linearGradient id="lv" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#8D87FF" stop-opacity="0.95"/><stop offset="1" stop-color="#8D87FF" stop-opacity="0.15"/></linearGradient>`;
+  svg.appendChild(defs);
+  const traces = [['3-0', 0, 'lg'], ['2-1', 5, 'lg'], ['3-2', 17, 'lv'], ['3-3', 28, 'lg'], ['3-4', 39, 'lv']];
+  const used = new Set();
+  traces.forEach(([k, col, grad]) => {
+    const c = cells.filter((x) => (grad === 'lv' ? x[2] === 'var(--violet)' : x[2] === 'var(--cyan-bright)') && x[3] === 0 && !used.has(x))
+      .sort((a, b) => Math.abs(a[4] - col) - Math.abs(b[4] - col))[0];
+    used.add(c);
+    const [nx, ny] = [150 + pos[k][0] + 58, 62 + pos[k][1] + 40];
+    const p = line(svg, `M${c[0]} ${c[1]} C${c[0]} ${c[1] - 40}, ${nx} ${ny + 40}, ${nx} ${ny + 2}`, `url(#${grad})`, 2);
+    const dot = document.createElementNS(svgNS, 'circle');
+    dot.setAttribute('cx', c[0]); dot.setAttribute('cy', c[1] + 4.5); dot.setAttribute('r', 6);
+    dot.setAttribute('fill', 'none'); dot.setAttribute('stroke', grad === 'lv' ? '#8D87FF' : '#12B5CB'); dot.setAttribute('stroke-width', 1.5);
+    svg.appendChild(dot);
+  });
+</script>
+</body>
+</html>

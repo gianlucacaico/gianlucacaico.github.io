@@ -5,6 +5,8 @@ date: 2026-10-15
 summary: "Why static blueprints decay the day after sign-off, and what changes when the blueprint is software rendered from a live evidence layer."
 topics: [Service design, Agentic AI, Evidence]
 read_time: 6
+image: dynamic-blueprinting
+image_alt: "Illustration of a service blueprint with customer, frontstage, backstage and systems lanes, each step traced back to claims in an evidence layer below"
 author_bio: "Gianluca Caico is a Lead Experience Designer at Bound, a boutique digital consultancy combining strategy, human-centred design and engineering. His background is in design thinking, human-centred design and customer strategy, leading discovery and transformation work across financial services, healthcare and utilities. Bound is part of Omnia Enterprise within The Omnia Collective, a group of founder-built Australian businesses across technology, design, data, AI and talent."
 extra_link:
   label: "See the EXD model"

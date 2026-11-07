@@ -5,6 +5,8 @@ date: 2020-07-05
 summary: "What Horizon Zero Dawn teaches about recognition, documentation, control, error recovery and consistency."
 topics: [UX, UI, Heuristics]
 read_time: 5
+image: video-games-ux
+image_alt: "Illustration of a game interface over a mountain landscape, with menu tabs, a minimap, a waypoint, a checkpoint saved message and a four-slot dial"
 archive: true
 ---
 In a time when video gaming has reached record-breaking heights, due to so much time spent indoors, gamification has more of a place now than ever before.

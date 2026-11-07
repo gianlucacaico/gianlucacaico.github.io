@@ -67,11 +67,15 @@ One conversation, one change, one branch, one pull request.
 | `assets/css/site.css` | All styles and design tokens | Yes |
 | `assets/js/site.js` | All interactions (filters, model, tabs, orbit, glass lens, nav) | Yes |
 | `assets/img/` | Site photos as webp: `avatar`, `portrait`, `facilitating`, `personal` | Yes |
-| `assets/og-image.jpg` | 1200x630 link preview image, used by every page | Yes |
+| `assets/img/blog/` | Each post's artwork, made by `tools/art.js`: `<slug>.webp` (banner), `<slug>-sm.webp` (list thumbnail), `<slug>.jpg` (link preview) | Yes |
+| `assets/img/work/` | Each Work page project's pictogram (`<client>.svg`, 240x156), drawn to be cropped by its card | Yes |
+| `assets/img/share/` | Link preview images for the Work and Blog pages (`work.jpg`, `blog.jpg`), made by `tools/art.js` | Yes |
+| `assets/og-image.jpg` | 1200x630 link preview image (portrait card) for the homepage, and for any page without its own | Yes |
 | `CNAME` | `gianlucacaico.com`. Never touch | Used by Pages |
 | `_config.yml` | Site settings: address, timezone, default link preview description, post addresses, sitemap, quote handling, files not to publish | No |
 | `CLAUDE.md` | This manual | No (excluded) |
-| `tools/` | Build, preview, comparison and health-check scripts | No (excluded) |
+| `tools/` | Build, preview, comparison, artwork and health-check scripts | No (excluded) |
+| `tools/art/` | Source of the post and page artwork: one HTML file per image, plus shared `art.css` | No (excluded) |
 | `.claude/skills/` | Project slash commands | No (dot-folder) |
 
 ## Tools
@@ -82,9 +86,10 @@ Run from the repo root. The tools build the site with GitHub Pages' own Jekyll f
   Screenshots at 390px (mobile) and 1280px (desktop), saved to `tools/previews/` (git-ignored). Views: `home`, `work`, `blog`, `blog/<slug>`, or `all` (found automatically from `_posts`). `--section` takes a section id (`writing`, `record`, `timeline`...) or any CSS selector. `--live` shoots the live site. Inter is served from a local copy so the font always renders; the tool warns if it does not, or if the expected view is not showing. Motion is reduced so screenshots are stable.
   The mobile tab bar is fixed to the bottom of the screen, so it appears over section screenshots, as it would on a phone.
 - `bash tools/health.sh`: checks the live site (domain, www, http to https, link preview tags and image, project files not public, every published file matches `main` as built by Jekyll, CNAME intact, no em dashes, sitemap, then the full page check below).
-- `node tools/check-views.js [url | local]`: follows every internal link from the homepage and checks each page (right view, images, no script errors, no em dashes, link preview tags pointing at the page's own address), every in-page link target, every old `#/` redirect and the 404 page. `local` builds and checks the working copy.
+- `node tools/check-views.js [url | local]`: follows every internal link from the homepage and checks each page (right view, images, no script errors, no em dashes, link preview tags pointing at the page's own address, link preview image loads), every in-page link target, every old `#/` redirect and the 404 page. `local` builds and checks the working copy.
 - `bash tools/build.sh [source] [destination]`: build the site exactly as GitHub Pages does (Jekyll 3.10 via the `github-pages` gem in `tools/Gemfile`, installed to `tools/vendor/`, run from `tools/` so GitHub's standard plugins load, in production mode). Its output matches the live site byte for byte.
 - `node tools/compare.js [--base <git ref>] [--after <folder>] [views...]`: before-and-after proof. Screenshots every view of `main` and of the working copy (or a built folder such as `_site`) at both sizes, full page, and reports any pixel that differs, saving red difference images to `tools/previews/compare/`. Run it for every change meant to leave the look unchanged, and quote its result in the pull request.
+- `node tools/art.js [name...]`: turns the artwork in `tools/art/` into images. A post's file (`tools/art/<slug>.html`, `data-kind="post"`) becomes `assets/img/blog/<slug>.webp`, `-sm.webp` and `.jpg`; a page's file (`data-kind="share"`) becomes `assets/img/share/<name>.jpg`. Re-run it after editing any artwork, and re-run `blog` or `work` after adding a post or project if that page's link preview should show it.
 - `tools/lib.js`: shared helpers (local server, local Inter, view list) used by the tools above.
 
 To show previews to Gianluca, send the PNGs with the SendUserFile tool (mobile first).
@@ -106,13 +111,13 @@ Every page is `<!DOCTYPE html>` from `_layouts/default.html`: head (`_includes/h
 - `#credentials`: two `.cred-group`s plus `.personal` (photo and outside-work line).
 - `#writing`: "Latest thinking", the two newest non-archive posts, generated from `_posts`.
 
-**Work** (`work.html`, `<main id="view-work">`): `.page-head` with the animated `#ix` "From one insight to production" panel, then a filter `.seg.work-filter` (counts in `<small>`) and `.work-grid` of `.work-card`s (`data-industry="fs|health|energy|sport|saas"`, `--art` gradient token, "Request the case study" mailto link). Case studies can later become their own collection of files in the same way as posts.
+**Work** (`work.html`, `<main id="view-work">`): `.page-head` with the animated `#ix` "From one insight to production" panel, then a filter `.seg.work-filter` (counts in `<small>`) and `.work-grid` of `.work-card`s (`data-industry="fs|health|energy|sport|saas"`; in `.work-art`: the `--art` industry colour, the project's pictogram `img.work-pic` filling the right side, the client name as text in `.big` top left, and the industry and year as plain text in `p.work-meta` bottom left; "Request the case study" mailto link). Case studies can later become their own collection of files in the same way as posts.
 
-**Blog** (`blog.html`, `<main id="view-blog">`): `.page-head`, then generated from `_posts`: the newest non-archive post as `.post-feature`, the other non-archive posts in `.writing.post-list`, and posts with `archive: true` under "From the archive".
+**Blog** (`blog.html`, `<main id="view-blog">`): `.page-head`, then generated from `_posts`: the newest non-archive post as `.post-feature` (its artwork fills `.post-art`), the other non-archive posts in `.writing.post-list`, and posts with `archive: true` under "From the archive".
 
-**Posts** (`_posts/*.md` with `_layouts/post.html`, `<main id="post-<slug>">`): `header.article-head` (back link, h1, byline, date, read time, topics), `.prose` body, `.author` bio, `.next-post` card, `.article-foot` buttons.
+**Posts** (`_posts/*.md` with `_layouts/post.html`, `<main id="post-<slug>">`): `header.article-head` (back link, h1, byline, date, read time, topics, then the post's artwork as a `figure.article-hero` banner), `.prose` body, `.author` bio, `.next-post` card, `.article-foot` buttons.
 
-**Link previews**: `_includes/head.html` fills the title, description, canonical address, Open Graph and Twitter tags for each page. Home uses the site description in `_config.yml`; Work and Blog set `description` in their front matter; posts use their `title` (as og:title), `short_title` (browser tab) and `summary` (description), with `og:type` article. Every page shares `assets/og-image.jpg` for now.
+**Link previews**: `_includes/head.html` fills the title, description, canonical address, Open Graph and Twitter tags for each page. Home uses the site description in `_config.yml`; Work and Blog set `description` in their front matter; posts use their `title` (as og:title), `short_title` (browser tab) and `summary` (description), with `og:type` article. Preview images: each post uses its own artwork (`assets/img/blog/<image>.jpg`, from the post's `image` and `image_alt`); Work and Blog use `share_image` and `share_alt` from their front matter (`assets/img/share/`); the homepage, 404 and anything else use the portrait card `assets/og-image.jpg`.
 
 **Navigation**: real links (`/`, `/work`, `/blog/`, `#contact`). Each page sets `nav: home|work|blog` in its front matter so the nav highlights the right tab (posts get `nav: blog` automatically). Links to homepage sections from other pages use `/#timeline`, `/#practice`.
 
@@ -128,6 +133,8 @@ date: 2026-11-20
 summary: "One or two sentences for cards and link previews."
 topics: [Topic one, Topic two, Topic three]
 read_time: 4
+image: <slug>                    # artwork in assets/img/blog (see "Post artwork" below)
+image_alt: "What the artwork shows, in one sentence"
 # optional:
 # archive: true                 (lists it under "From the archive" with a "From the archive" note)
 # author_bio: "Custom bio text" (otherwise the standard bio for the post's date is used)
@@ -152,7 +159,27 @@ A pull quote paragraph.
 - Apostrophes and quotes stay exactly as typed (no automatic curly quotes), and `--`/`---` never become dashes. Still never type an em dash.
 - Checks: `node tools/preview.js blog/<slug> --full`, `node tools/preview.js blog`, `node tools/preview.js home --section writing`, then `node tools/check-views.js local`.
 
-Images: photos live in `assets/img/` and are linked with absolute paths (`/assets/img/avatar.webp`). New images go in `assets/img/` as webp; discuss any new image with Gianluca first.
+### Post artwork (banner, thumbnail and link preview)
+
+Every post has one piece of artwork, used three ways: the banner under the post's title, the thumbnail in post lists (and the featured card on the blog page), and the image shown when the post is shared on LinkedIn, iMessage or Slack. They are illustrations drawn in the site's design system (ink background, violet, coral, amber and cyan colour fields, glass panels, Inter), each showing the post's actual idea, never stock photos.
+
+1. Copy the closest existing file in `tools/art/` to `tools/art/<slug>.html` and redraw it for the new post's idea. Use only words, figures and labels that appear in the post. Australian English, no em dashes.
+2. Keep the important parts in the middle 80% of the width (the blog page's featured card trims the sides) and keep the bottom-left corner free of text (the "Featured" label sits there).
+3. Run `node tools/art.js <slug>`, look at `assets/img/blog/<slug>.jpg`, and adjust until it reads well both full size and as a small thumbnail.
+4. Add `image: <slug>` and `image_alt: "..."` to the post's front matter. Show the artwork to Gianluca with the post previews: it is a new image, so it needs his approval like any copy.
+
+A post without `image` still works: it shows no banner or thumbnail, the featured card falls back to the plain gradient, and its link preview uses the portrait card.
+
+**Project pictograms** (Work page cards): each project's key artefact as a pictogram, `assets/img/work/<client>.svg`, drawn directly as SVG on a 240x156 canvas: the right 240px of the card at its full 156px height. It sits in the card as `<img class="work-pic" src="/assets/img/work/<client>.svg" width="240" height="156" alt="">` and the card's edges crop it. Labels under it are plain text (`<p class="work-meta"><span>Industry</span><span>Year</span></p>`), not pills. The rules behind it (chosen by testing several compositions with Gianluca):
+- Reading order: client name top left, pictogram's focal point, then the labels. No frame or tile around the pictogram.
+- Draw it for the crop: big, with context running off the right, top or bottom edge, and lines fading in from the left. Keep the focal point and anything that carries meaning fully inside the canvas (a half-cut icon reads as a mistake).
+- Keep clear: top left of the canvas (x under 60, y under 48) for the client name, and bottom left (x under 110, y over 112) for the labels. The longest name, "Generation Life", is 129px wide at the card's 18px and reaches canvas x 52 on a 335px phone card; check any longer name at phone width.
+- One idea per pictogram. White for the main shapes, white at about 20 to 45% for secondary ones, and exactly one accent for the insight (on-dark tints: cyan #3FD3E3, coral #FF8AA0, amber #FFB070), chosen to contrast with the card's colour.
+- No words or figures, and only what the card itself says: no client logos, brand colours or numbers that are not already on the card. Any new client still needs Gianluca's confirmation that it is cleared to share.
+
+**Client names** (Work page cards) are text, not logos: `<span class="big">Client</span>`, 18px bold white, top left. Logos were tried and removed because there is no formal permission from the clients. Use a client's logo only with formal permission.
+
+Images: photos live in `assets/img/` and are linked with absolute paths (`/assets/img/avatar.webp`). New images go in `assets/img/` as webp; discuss any new image with Gianluca first. Post artwork lives in `assets/img/blog/` and is made with `tools/art.js` (above).
 
 ### Reusable components (use these, do not invent new ones)
 
@@ -160,7 +187,9 @@ Images: photos live in `assets/img/` and are linked with absolute paths (`/asset
 - Glass material: `.glass` (and `.on-dark`), with `.lens` for the sliding highlight in `.seg` and nav.
 - Section scaffold: `section.bordered > .wrap > .section-head (h2 + .count) + .section-intro`.
 - Segmented filter: `.seg.glass` with buttons `aria-pressed`, plus a `.filter-status` line.
-- Cards: `.work-card`, `.eng` (details), `.post-feature`, `.writing article`, `.next-post`, `.cred-group`.
+- Cards: `.work-card`, `.eng` (details), `.post-feature` (with `.post-art.has-img` when the post has artwork), `.writing article` (`.has-thumb` plus `.row-thumb` when the post has artwork), `.next-post`, `.cred-group`.
+- Post banner: `figure.article-hero` (in `_layouts/post.html`).
+- Work card art: `img.work-pic` (cropped pictogram, right side) and `p.work-meta` (industry and year as text, separated by a dot) inside `.work-art`.
 - Tags and chips: `.post-tags` (violet wash), `.tags` (grey), `.chip`, `.chip-g` (glass on art), `.soon`, `.spot-tag`.
 - Post body (`.prose`): `p.lead`, `h2`, `h3`, lists, `.pull` quote, `.stat-strip` (dark dl), `.callout` (dark stat card), `.flow` (step chips with arrows), `.roles` (three cards), `.defs` (definition pairs), `.pairs` (two-column list), `.t-fig`, `.source`, `.archive-note`, `hr`.
 - Photos: `.ph` containers with `--pos` focal point; avatars `.av` with sizes `av-xs`, `av-sm`, `av-md`, `av-lg`.
@@ -201,5 +230,6 @@ Merged pull requests: https://github.com/gianlucacaico/gianlucacaico.github.io/p
 ## Known content notes (flagged, not changed)
 
 - The Work and Blog page link preview descriptions were new copy in the clean-addresses pull request; Gianluca approved them there.
+- Client logos were tried on the Work page cards and replaced with client names as text: there is no formal permission from the clients to show their logos.
 
 Add anything spotted but not yet confirmed with Gianluca here.

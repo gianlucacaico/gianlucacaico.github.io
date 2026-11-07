@@ -4,7 +4,7 @@ layout: default
 {%- comment -%}
   One blog post. Everything here comes from the post's file in _posts:
   title, short_title, date, summary, topics, read_time, and optionally
-  archive, author_bio and extra_link. Posts dated 2025 onwards show
+  image and image_alt (artwork in assets/img/blog), archive, author_bio and extra_link. Posts dated 2025 onwards show
   "Omnia Enterprise" in the byline and bio automatically.
 {%- endcomment -%}
 {%- assign year = page.date | date: "%Y" | plus: 0 %}
@@ -16,6 +16,9 @@ layout: default
         <h1>{{ page.title }}</h1>
         <p class="article-meta"><span class="av av-sm" aria-hidden="true"><b>GC</b><img data-photo="avatar" src="/assets/img/avatar.webp" alt=""></span><span>{% if year >= 2025 %}Gianluca Caico, Omnia Enterprise &middot; <time datetime="{{ page.date | date: "%Y-%m-%d" }}">{{ page.date | date: "%-d&nbsp;%B&nbsp;%Y" }}</time>{% else %}Gianluca Caico &middot; <time datetime="{{ page.date | date: "%Y-%m-%d" }}">{{ page.date | date: "%-d %B %Y" }}</time>{% endif %} &middot; {{ page.read_time }} min read</span></p>
         <ul class="post-tags">{% for t in page.topics %}<li>{{ t }}</li>{% endfor %}</ul>
+        {%- if page.image %}
+        <figure class="article-hero"><img src="/assets/img/blog/{{ page.image }}.webp" srcset="/assets/img/blog/{{ page.image }}-sm.webp 720w, /assets/img/blog/{{ page.image }}.webp 2400w" sizes="(max-width:760px) 100vw, 1056px" width="2400" height="1260" alt="{{ page.image_alt | escape }}" fetchpriority="high"></figure>
+        {%- endif %}
       </div>
     </header>
     <div class="wrap">
