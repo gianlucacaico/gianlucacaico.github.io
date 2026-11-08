@@ -477,7 +477,7 @@
   .page-head .wrap{position:relative; z-index:1;}
   .page-head h1{font-size:clamp(2.1rem, 4.6vw, 3.2rem); line-height:1.1; max-width:780px;}
   section.tight{padding-top:12px;}
-  a.count{text-decoration:none; color:var(--violet-deep); font-weight:600;}
+  a.count{display:inline-block; padding:5px 0; margin:-5px 0; text-decoration:none; color:var(--violet-deep); font-weight:600;}
   a.count:hover{text-decoration:underline;}
 
   /* ---------- Work ---------- */
