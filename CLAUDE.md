@@ -203,11 +203,14 @@ Images: photos live in `assets/img/` and are linked with absolute paths (`/asset
 - Section scaffold: `section.bordered > .wrap > .section-head (h2 + .count) + .section-intro`.
 - Segmented filter: `.seg.glass` with buttons `aria-pressed`, plus a `.filter-status` line. It scrolls sideways on phones, so it draws its glass on itself rather than with the `.glass` layers, which would scroll away and leave a hard edge.
 - Cards: `.work-card`, `.eng` (details), `.post-feature` (with `.post-art.has-img` when the post has artwork), `.writing article` (`.has-thumb` plus `.row-thumb` when the post has artwork), `.next-post`, `.cred-group`.
+- Plain cards: `.ev-outcomes` (the Spotlight's three outcomes, `h3` plus `p`) and `.roles` in posts. Both are the engagement card's look (white, hairline border, 12px corners) without the plus. `.ev-outcomes.practice-points` is the same grid as plain text columns, with no card.
+- Bracket: `.bracket` (the "Engagements led at Bound" panel) groups a subset inside a larger item. Its violet left edge says "these belong to the role above".
+- **No accent lines on cards** (decided November 2026). A coloured edge is allowed only where it means something: the bracket's left edge (a subset), the outcome line inside a card (`.eng-outcome`, `.work-outcome`) and the `.pull` quote. Never add a coloured top or side line to a card for decoration.
 - Post banner: `figure.article-hero` (in `_layouts/post.html`).
 - Breadcrumb trail: `nav.crumbs.back.glass` with an `ol` of links ending in the current page (`aria-current="page"`), shortened with an ellipsis if it does not fit. On posts only (Home / Blog / short title); the design system's kit has the same component.
 - Work card art: `img.work-pic` (cropped pictogram, right side) and `p.work-meta` (industry and year as text, separated by a dot) inside `.work-art`.
 - Tags and chips: `.post-tags` (violet wash), `.tags` (grey), `.chip`, `.chip-g` (glass on art), `.soon`, `.spot-tag`.
-- Post body (`.prose`): `p.lead`, `h2`, `h3`, lists, `.pull` quote, `.stat-strip` (dark dl), `.callout` (dark stat card), `.flow` (step chips with arrows), `.roles` (three cards), `.defs` (definition pairs), `.pairs` (two-column list), `.t-fig`, `.source`, `.archive-note`, `hr`.
+- Post body (`.prose`): `p.lead`, `h2`, `h3`, lists, `.pull` quote, `.stat-strip` (dark dl), `.callout` (dark stat card), `.flow` (step chips with arrows), `.roles` (three plain cards), `.defs` (definition pairs), `.pairs` (two-column list), `.t-fig`, `.source`, `.archive-note`, `hr`.
 - Footer site map: `nav.foot-map` (three columns of links under small grey labels, two columns on phones), in `_includes/footer.html`.
 - Photos: `.ph` containers with `--pos` focal point; avatars `.av` with sizes `av-xs`, `av-sm`, `av-md`, `av-lg`.
 - Dark sections set `data-tone="dark"` so the floating nav switches to light text over them.
@@ -248,5 +251,6 @@ Merged pull requests: https://github.com/gianlucacaico/gianlucacaico.github.io/p
 
 - The Work and Blog page link preview descriptions were new copy in the clean-addresses pull request; Gianluca approved them there.
 - Client logos were tried on the Work page cards and replaced with client names as text: there is no formal permission from the clients to show their logos.
+- The EXD model's lane cards (`.m-lane`: Outcome, Human gate, Agentic lane) still have a coloured top edge (ink, violet, amber). It works as a legend, unlike the decorative lines removed in November 2026, but it has not been confirmed with Gianluca.
 
 Add anything spotted but not yet confirmed with Gianluca here.
