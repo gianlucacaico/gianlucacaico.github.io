@@ -245,6 +245,4 @@ Merged pull requests: https://github.com/gianlucacaico/gianlucacaico.github.io/p
 - The Work and Blog page link preview descriptions were new copy in the clean-addresses pull request; Gianluca approved them there.
 - Client logos were tried on the Work page cards and replaced with client names as text: there is no formal permission from the clients to show their logos.
 
-- First navigation sweep (November 2026). Done or in review: footer links between the two sites (live), a breadcrumb trail on posts (#14) and a footer site map (#15); in the design system, its breadcrumb trail and footer site map. Still open, awaiting Gianluca: small tap targets ("All posts" on the homepage is 22px tall; links in the design system's "Follow one change"); the design system's Workflows page never marks itself in the menu and its canonical address ends in `.html`; on a phone, Workflows is hidden at the end of the design system's sideways menu, which also scrolls away on the long docs page.
-
 Add anything spotted but not yet confirmed with Gianluca here.
