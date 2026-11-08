@@ -10,7 +10,7 @@ Follow CLAUDE.md, especially the Working agreement, "Navigation standard" and "H
 
 ## 1. Map (automatic)
 
-Run `node tools/nav-map.js --shots`. Add `--ds ../design-system` when the design system repo is checked out next to this one, so its unpublished changes count too, or `--live` to sweep the live sites. It crawls both sites as one space, from both front doors and the sitemap, at 390px and 1280px, and prints PASS / WARN / FAIL / INFO under four questions: where am I, where can I go, how do I get back, and labels and tap targets. It saves the full map to `tools/previews/nav/map.json` and the top and end of every page to `tools/previews/nav/shots/`.
+Run `node tools/nav-map.js --shots`. Add `--ds ../design-system` when the design system repo is checked out next to this one, so its unpublished changes count too, or `--live` to sweep the live sites. It crawls both sites as one space, from both front doors and the sitemap, at 390px and 1280px, and prints PASS / WARN / FAIL / INFO under four questions (where am I, where can I go, how do I get back, labels and tap targets) plus **page length and growth**: how many phone screens each page runs to, how many sections it has, whether the menu jumps within it, and how fast it has grown in git, projected over its next 10 changes. It saves the full map to `tools/previews/nav/map.json` and the top and end of every page to `tools/previews/nav/shots/`.
 
 Any FAIL is a bug (a broken link, an in-page link with no target, a page with no way home): list those first.
 
@@ -24,6 +24,7 @@ Look at the screenshots, phone first, and walk these journeys:
 - **Design system visitor:** land on `/design-system/workflows` from a link, work out where it sits, reach gianlucacaico.com.
 - **Between the sites:** from any page of gianlucacaico.com, find the design system through the footer, and come back the same way.
 - **Lost:** a missing address, the "page not found" page, back on track.
+- **Looking something up:** on a phone, find one specific thing (the colour tokens, the decision log, the case studies). Count the swipes and taps it takes, and ask how that changes as the page grows.
 
 Score each finding against these heuristics (Nielsen's ten, applied to navigation), with a severity: **3** blocks or misleads, **2** slows down or confuses, **1** polish.
 
@@ -34,6 +35,7 @@ Score each finding against these heuristics (Nielsen's ten, applied to navigatio
 - **Plain labels:** link text says where it goes; section links use the heading they jump to.
 - **Recovery:** links never break, in-page links land, the 404 page offers a way on.
 - **Accessibility:** tap targets at least 24px (aim for 44), menus labelled, `aria-current` used.
+- **Size and structure:** a page people look things up in fits in about 12 phone screens. A longer one whose menu jumps within it (a table of contents posing as a menu), or one growing fast towards that, wants sub-pages and a menu always one tap away. A long page read top to bottom, like the homepage or a post, can stay whole. Look ahead, not just at today: use the map's growth forecast, and ask what is still to come (more decisions, components, posts).
 - **Restraint:** nothing added that the menu already does well; no duplicate links competing.
 
 Use the map's numbers as evidence ("2 taps", "22px tall"), never a hunch.
@@ -49,7 +51,8 @@ Check the design system's decision log (`_data/decisions.yml` in gianlucacaico/d
 - **Breadcrumbs:** only on pages two levels down or in the other site, where they add something the menu does not. One component on both sites, plus breadcrumb data for search results.
 - **Footer site map:** the space's main pages, the homepage sections by their headings, and the newest posts, filled in automatically.
 - **Cross-site links:** each site's footer links to the other (decision, November 2026). A link between them anywhere else needs Gianluca's explicit approval.
-- **Anything else** the review turns up (a sticky menu on a long page, a clearer 404), as long as it reuses existing components and tokens.
+- **Sub-pages and a portal:** for every page the map flags under page length and growth, propose the split: which sections become which pages (by the questions people arrive with, not by size), a home page that shows every page at a glance, a menu always one tap away on a phone, and old in-page addresses (`#section`) redirected to their new page. Draft at least the home page and one sub-page, so the structure can be judged, not imagined.
+- **Anything else** the review turns up (a sticky menu, a clearer 404), as long as it reuses existing components and tokens.
 
 Draft in a throwaway copy, never on a branch that is up for review: `git worktree add --detach <scratchpad>/nav-mock`, and the same for the design system. Build both, then render each proposal as Current and Proposed, phone and desktop. Save each repo's draft as a patch file so an approved proposal can be applied as is.
 

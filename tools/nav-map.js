@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 // Navigation map: sweeps gianlucacaico.com and its design system (gianlucacaico.com/design-system)
 // as one space, the way a visitor moves through them, at phone (390px) and desktop (1280px) size.
-// For every page it asks three questions: where am I, where can I go, and how do I get back.
+// For every page it asks three questions: where am I, where can I go, and how do I get back. It also
+// measures how long each page is on a phone and how fast it is growing (from its history in git), and
+// flags long reference pages that should become sub-pages with a menu.
 // It is the first step of the /navigate skill, which turns this map into a heuristic review.
 //
 // Usage (from the repo root):
 //   node tools/nav-map.js                  this working copy, with the live design system
-//   node tools/nav-map.js --ds <folder>    with a local design system checkout instead (built with its own tools/build.sh)
+//   node tools/nav-map.js --ds <folder>    with a local design system checkout instead (built with its own tools/build.sh),
+//                                          which also lets it measure the design system's growth
 //   node tools/nav-map.js --live           the live site and the live design system
 //   node tools/nav-map.js --shots          also screenshot the top and bottom of every page at both sizes
 //   node tools/nav-map.js --json <file>    where to save the full map (default tools/previews/nav/map.json)
@@ -26,6 +29,9 @@ const LIVE = 'https://gianlucacaico.com';
 const DS = '/design-system/';
 const SIZES = { mobile: { width: 390, height: 844 }, desktop: { width: 1280, height: 800 } };
 const VAGUE = /^(click here|here|read more|more|learn more|link|this|go|details)$/i;
+// Page length: a page people look things up in should fit in about this many phone screens.
+const LONG = 12, MANY_SECTIONS = 6, AHEAD = 10, TRUST = 5; // project growth over the next AHEAD changes, once a page has TRUST or more
+const ROOT = path.resolve(__dirname, '..');
 
 function args(argv) {
   const o = { live: false, ds: null, shots: false, json: path.join(__dirname, 'previews', 'nav', 'map.json') };
@@ -34,7 +40,7 @@ function args(argv) {
     else if (argv[i] === '--shots') o.shots = true;
     else if (argv[i] === '--ds') o.ds = path.resolve(argv[++i]);
     else if (argv[i] === '--json') o.json = path.resolve(argv[++i]);
-    else if (argv[i] === '-h' || argv[i] === '--help') { console.log(fs.readFileSync(__filename, 'utf8').split('\n').slice(1, 17).join('\n')); process.exit(0); }
+    else if (argv[i] === '-h' || argv[i] === '--help') { console.log(fs.readFileSync(__filename, 'utf8').split('\n').slice(1, 20).join('\n')); process.exit(0); }
   }
   return o;
 }
@@ -123,7 +129,40 @@ function readPage() {
     breadcrumbData: /BreadcrumbList/.test(ld),
     skipLink: !!first && first.tagName === 'A' && (first.getAttribute('href') || '').startsWith('#') && /skip/i.test(first.textContent),
     main: !!document.querySelector('main'),
+    height: document.documentElement.scrollHeight,
+    sections: document.querySelectorAll('main h2').length,
+    sectionIds: [...document.querySelectorAll('main [id]')].filter((e) => e.querySelector('h2')).map((e) => e.id),
   };
+}
+
+// The source file behind a page, so its history can be read: this repo for the site, the --ds checkout
+// for the design system. Posts are written once, so they have none.
+function sourceOf(p, dsRepo) {
+  if (spaceOf(p) === 'ds') return dsRepo ? { repo: dsRepo, file: ((p.slice(DS.length).replace(/\/$/, '')) || 'index') + '.html' } : null;
+  if (p.startsWith('/blog/') && p !== '/blog/') return null;
+  return { repo: ROOT, file: (p === '/' ? 'index' : p === '/blog/' ? 'blog' : p.slice(1)) + '.html' };
+}
+// How the page's section count (its h2 headings) changed over every commit that touched it, oldest first.
+function growthOf(src) {
+  if (!src) return null;
+  try {
+    const log = execFileSync('git', ['-C', src.repo, 'log', '--format=%H %cI', '--', src.file], { encoding: 'utf8' }).trim();
+    const points = log.split('\n').filter(Boolean).reverse().map((line) => {
+      const [sha, when] = line.split(' ');
+      let text = '';
+      try { text = execFileSync('git', ['-C', src.repo, 'show', `${sha}:${src.file}`], { encoding: 'utf8', maxBuffer: 1e8, stdio: ['ignore', 'pipe', 'ignore'] }); } catch (e) { /* not there yet */ }
+      return { when, sections: (text.match(/<h2[\s>]/g) || []).length, ok: !!text };
+    }).filter((pt) => pt.ok);
+    if (points.length < 2) return { changes: points.length, perChange: 0 };
+    const recent = points.slice(-(AHEAD + 1)); // the last few changes say more about where it is heading
+    const first = points[0], last = points[points.length - 1];
+    return {
+      changes: points.length,
+      from: first.sections, to: last.sections,
+      days: Math.max(1, Math.round((new Date(last.when) - new Date(first.when)) / 864e5)),
+      perChange: (recent[recent.length - 1].sections - recent[0].sections) / (recent.length - 1),
+    };
+  } catch (e) { return null; }
 }
 
 (async () => {
@@ -347,13 +386,41 @@ function readPage() {
     for (const k of Object.keys(m)) if (d[k] && d[k] !== m[k]) add('INFO', G.labels, `${space === 'ds' ? 'Design system' : 'Main site'} menu: ${k} is "${d[k]}" on desktop but "${m[k]}" on a phone`);
   }
 
+  // Page length and growth. A long page whose menu is a table of contents for it (the menu jumps to its
+  // sections), or whose growth will make it long, is a reference page that wants sub-pages and a menu.
+  // A long page read top to bottom (a homepage story, a post) can stay whole.
+  G.size = 'Page length and growth';
+  for (const p of paths.filter((x) => !(x.startsWith('/blog/') && x !== '/blog/') && x !== '/404')) {
+    const m = pages[p].sizes.mobile, screens = m.height / SIZES.mobile.height;
+    const jumps = new Set(paths.flatMap((q) => Object.values(pages[q].sizes).flatMap((s) => s.links.filter((l) => (l.region === 'header' || l.region === 'tabbar') && l.to === p && l.hash && m.sectionIds.includes(l.hash)).map((l) => l.hash))));
+    const g = growthOf(sourceOf(p, o.live ? o.ds : (dsLive ? null : o.ds)));
+    pages[p].size = { screens: +screens.toFixed(1), sections: m.sections, menuJumps: jumps.size, growth: g };
+    const perSection = m.sections ? screens / m.sections : 0;
+    const ahead = g && g.perChange > 0 ? { sections: Math.round(m.sections + g.perChange * AHEAD), screens: Math.round((m.sections + g.perChange * AHEAD) * perSection) } : null;
+    if (ahead) pages[p].size.ahead = ahead;
+    const facts = `${Math.round(screens)} phone screens, ${m.sections} sections` + (jumps.size ? `, and the menu jumps to ${jumps.size} of them` : '')
+      + (g && g.changes > 1 ? `; ${g.from === g.to ? 'steady at' : 'went from ' + g.from + ' to'} ${g.to} sections over ${g.changes} changes in ${g.days} day${g.days === 1 ? '' : 's'}` : g === null && spaceOf(p) === 'ds' ? '; growth not measured (add --ds with a local checkout)' : '')
+      + (ahead ? `; at this pace, about ${ahead.sections} sections and ${ahead.screens} screens after the next ${AHEAD} changes` : '');
+    const trusted = g && g.changes >= TRUST; // a forecast from a handful of changes is a guess
+    const long = Math.round(screens) >= LONG, growingLong = trusted && ahead && ahead.screens >= LONG * 1.5;
+    if (m.sections >= MANY_SECTIONS && ((long && jumps.size >= 3) || (long && growingLong) || (!long && growingLong && jumps.size >= 3))) {
+      add('WARN', G.size, `${p}: ${facts}. A reference page this long is hard to look things up in: split it into sub-pages, with a menu always one tap away`);
+    } else if (long) {
+      add('INFO', G.size, `${p}: ${facts}. Long, but its menu does not jump within it${!ahead ? ' and it is not growing' : !trusted ? ', and ' + g.changes + ' changes are too few to trust a forecast' : ''}, so it can stay one page for now`);
+    } else if (ahead && ahead.screens >= LONG) {
+      add('INFO', G.size, `${p}: ${facts}. Not long yet, but heading that way: plan its structure before it gets there`);
+    } else {
+      add('PASS', G.size, `${p}: ${facts}`);
+    }
+  }
+
   // ---------- Report ----------
   console.log(`\nNavigation map of ${o.live ? 'the live sites' : 'this working copy'} (design system: ${dsLive ? 'live' : o.ds})\n`);
-  console.log('Page'.padEnd(46) + 'Taps from home  Links in  Onward  Crumbs');
+  console.log('Page'.padEnd(46) + 'Taps from home  Links in  Onward  Crumbs  Phone screens');
   for (const p of paths) {
     const d = pages[p].space === 'ds' ? fromDs[p] : fromHome[p];
     const onward = new Set(pages[p].sizes.mobile.links.filter((l) => l.kind === 'internal' && l.visible && pages[l.to] && l.to !== p).map((l) => l.to)).size;
-    console.log(`${(p + '  ' + pages[p].sizes.desktop.title).slice(0, 45).padEnd(46)}${String(d === undefined ? '-' : d).padEnd(16)}${String(inbound[p].size).padEnd(10)}${String(onward).padEnd(8)}${pages[p].sizes.desktop.breadcrumb ? 'yes' : 'no'}`);
+    console.log(`${(p + '  ' + pages[p].sizes.desktop.title).slice(0, 45).padEnd(46)}${String(d === undefined ? '-' : d).padEnd(16)}${String(inbound[p].size).padEnd(10)}${String(onward).padEnd(8)}${(pages[p].sizes.desktop.breadcrumb ? 'yes' : 'no').padEnd(8)}${Math.round(pages[p].sizes.mobile.height / SIZES.mobile.height)}`);
   }
   for (const g of Object.values(G)) {
     const rs = results.filter((r) => r.group === g);
