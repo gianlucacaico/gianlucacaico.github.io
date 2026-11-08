@@ -108,6 +108,8 @@ function readPage() {
       region: region(a),
       visible: visible(a),
       hidden: a.getAttribute('aria-hidden') === 'true' || a.tabIndex < 0,
+      // In a menu that is closed until tapped (a Menu button on a phone): not visible, but one tap away.
+      collapsed: !!a.closest('details:not([open])') && !!a.closest('header, .tabbar'),
       current: a.getAttribute('aria-current'),
       newTab: a.target === '_blank',
       noopener: /noopener|noreferrer/.test(a.rel),
@@ -153,6 +155,12 @@ function growthOf(src) {
       try { text = execFileSync('git', ['-C', src.repo, 'show', `${sha}:${src.file}`], { encoding: 'utf8', maxBuffer: 1e8, stdio: ['ignore', 'pipe', 'ignore'] }); } catch (e) { /* not there yet */ }
       return { when, sections: (text.match(/<h2[\s>]/g) || []).length, ok: !!text };
     }).filter((pt) => pt.ok);
+    // The working copy is the latest point, so a change not yet committed (such as a split) counts.
+    const file = path.join(src.repo, src.file);
+    if (fs.existsSync(file)) {
+      const now = (fs.readFileSync(file, 'utf8').match(/<h2[\s>]/g) || []).length;
+      if (!points.length || points[points.length - 1].sections !== now) points.push({ when: new Date().toISOString(), sections: now, ok: true });
+    }
     if (points.length < 2) return { changes: points.length, perChange: 0 };
     const recent = points.slice(-(AHEAD + 1)); // the last few changes say more about where it is heading
     const first = points[0], last = points[points.length - 1];
@@ -280,10 +288,10 @@ function growthOf(src) {
       const s = pg.sizes[size], vis = s.links.filter((l) => l.visible);
       const globalNav = vis.filter((l) => l.region === 'header' || l.region === 'tabbar');
       // Where am I?
-      const marked = globalNav.some((l) => l.current === 'page');
+      const marked = globalNav.some((l) => l.current === 'page') || s.links.some((l) => l.collapsed && l.current === 'page');
       if (!globalNav.length) add('INFO', G.here, `${where} (${size}): has no menu, only its own links`);
       else if (p !== '/404') {
-        if (marked) add('PASS', G.here, `${where} (${size}): the menu marks where you are`);
+        if (marked) add('PASS', G.here, `${where} (${size}): the menu marks where you are${globalNav.some((l) => l.current === 'page') ? '' : ' (inside the Menu button)'}`);
         else add('WARN', G.here, `${where} (${size}): nothing in the menu marks where you are`);
       }
       // How do I get back?
