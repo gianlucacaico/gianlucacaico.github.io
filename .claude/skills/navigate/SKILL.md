@@ -79,4 +79,6 @@ Say: "Nothing has changed on either site. Tell me which of these to make." On ap
 
 ## Running as an agent
 
-Steps 1 to 5 need no decisions, so they can run unattended, for example as a monthly sweep or after a new post or page merges. Inputs: an optional focus. Outputs: `map.json`, the screenshots, the report, the previews and the patch files. It always stops at step 6: an agent version reports and asks, it never applies.
+The navigation agent (`.claude/agents/navigator.md`) runs steps 1 to 5 of this skill on its own, in its own context, and reports back. It runs **only when Gianluca says so**: he types `/navigator` or asks for it in his own words, and Claude Code asks him to approve every launch (`Agent(navigator)` is an "ask" rule in `.claude/settings.json`). It never runs on a schedule, from a hook, or because another agent suggested it, and it always stops at its report.
+
+Any session may **suggest** a run, in one line, never start one. Good moments: after a change that adds or removes a page, section or post, or changes a menu, footer, breadcrumb or link structure; or when a page has grown a lot since the last sweep.
