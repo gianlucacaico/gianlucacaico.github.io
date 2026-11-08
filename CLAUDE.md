@@ -13,6 +13,7 @@ This file is not published (see `_config.yml`). Keep it current whenever the str
 - **Never add a `.nojekyll` file.** It switches off the `_config.yml` exclusions and would publish CLAUDE.md and tools/.
 - **If unsure about a fact, client detail or design decision, ask.** Do not guess.
 - **Every change goes through a pull request.** Merging the pull request is what puts it live, and only happens after explicit approval (via `/publish`, or Gianluca tapping Merge himself). Never push directly to `main`.
+- **Agents run only when Gianluca says so.** Never start an agent (the navigation agent or any other), a scheduled task or a background run on your own initiative, from a schedule or a hook, or because another agent suggested it. Suggesting one in a line is fine; running it is his call. The navigation agent also asks for his approval at every launch (`.claude/settings.json`).
 
 ## Content rules
 
@@ -77,7 +78,9 @@ One conversation, one change, one branch, one pull request.
 | `CLAUDE.md` | This manual | No (excluded) |
 | `tools/` | Build, preview, comparison, artwork and health-check scripts | No (excluded) |
 | `tools/art/` | Source of the post and page artwork: one HTML file per image, plus shared `art.css` | No (excluded) |
-| `.claude/skills/` | Project slash commands: `/edit`, `/new-post`, `/preview`, `/health`, `/publish`, `/navigate` | No (dot-folder) |
+| `.claude/skills/` | Project slash commands: `/edit`, `/new-post`, `/preview`, `/health`, `/publish`, `/navigate`, `/navigator` | No (dot-folder) |
+| `.claude/agents/navigator.md` | The navigation agent: runs the `/navigate` sweep end to end and reports back. Starts only when Gianluca says so (`/navigator`) | No (dot-folder) |
+| `.claude/settings.json` | Claude Code project settings: asks Gianluca to approve every launch of the navigation agent | No (dot-folder) |
 
 ## Tools
 
@@ -128,7 +131,7 @@ The footer's site map links to `#record`, `#practice`, `#timeline` and `#credent
 
 ### Navigation standard
 
-What every page on both sites should do. `node tools/nav-map.js` checks it and `/navigate` (the navigation orchestrator) reviews it: map, heuristic review, clean-up, then drafted proposals such as breadcrumbs and footer site maps, each shown for approval and made as its own change.
+What every page on both sites should do. `node tools/nav-map.js` checks it and `/navigate` (the navigation orchestrator) reviews it: map, heuristic review, clean-up, then drafted proposals such as breadcrumbs and footer site maps, each shown for approval and made as its own change. The navigation agent (`.claude/agents/navigator.md`) runs that whole sweep on its own and reports back, but only when Gianluca starts it with `/navigator`, and Claude Code asks him to approve each launch. Sessions may suggest a run, never start one.
 - **Where am I?** The menu marks the current page (`aria-current="page"`) at both sizes. Every page has its own title, and its canonical address is the address links use.
 - **Where can I go?** Every page offers a next step beyond the menu (no dead ends), contact is one tap away on this site, and each site's main pages are within two taps.
 - **How do I get back?** Every page links home, and pages two levels down (posts, the design system's inner pages) link to their parent.
